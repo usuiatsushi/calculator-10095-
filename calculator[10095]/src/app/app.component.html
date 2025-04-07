@@ -1,0 +1,115 @@
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
+<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
+<!-- * * * * * * * to get started with your project! * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>CALCULATOR</title>
+</head>
+ 
+<body>
+
+  <form name="dentaku" id="dentaku"> 
+    <table class="bg-color">
+      <!-- 液晶画面部分 -->
+      <tr>
+        <td colspan="4">
+            <input type="text" class="screen" [value]="screenText" disabled />
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+            <input type="text" class="calculator-screen" [value]="currentNumber" disabled />
+        </td>
+      </tr>
+    
+      
+      <!-- 上から1段目 -->
+      <tr>
+        <td><input type="button" value="MC" (click) = "memoryOperation('MC')"  class="memoryOperator"></td>
+        <td><input type="button" value="MR" (click) = "memoryOperation('MR')"  class="memoryOperator"></td>
+        <td><input type="button" value="M+" (click) = "memoryOperation('M+')"  class="memoryOperator"></td>
+        <td><input type="button" value="M-" (click) = "memoryOperation('M-')"  class="memoryOperator"></td>
+  
+      </tr>
+      <!-- 上から1段目 -->
+      <tr>
+        <td><input type="button" value="+/-" (click) = "getPositiveNegative()"  class="subOperator"></td>
+        <td><input type="button" value="CE" (click) = "reset()"  class="this-clear subOperator"></td>
+        <td><input type="button" value="C" (click) = "clear()"  class="all-clear subOperator"></td>
+        <td><input type="button" value="Del" (click) = "Delete()" class="delete subOperator"></td>
+  
+      </tr>
+
+      <!-- 上から2段目 -->
+      <tr>
+        <td><input type="button" value="1/x" (click) = "getOperation('1/')" class="operator subOperator"></td>
+        <td><input type="button" value="x²" (click) = "getOperation('²')" class="operator subOperator"></td>
+        <td><input type="button" value="√x" (click) = "getOperation('√')" class="operator subOperator"></td>
+        <td><input type="button" value="÷" (click) = "getOperation('÷')" class="operator fourArithmeticOperations"></td>
+
+      </tr>
+        
+      <!-- 上から3段目 -->
+      <tr>
+        <td><input type="button" value="7" (click) = "getNumber('7')" class="number"></td>
+        <td><input type="button" value="8" (click) = "getNumber('8')" class="number"></td>
+        <td><input type="button" value="9" (click) = "getNumber('9')" class="number"></td>
+        <td><input type="button" value="×" (click) = "getOperation('×')" class="operator fourArithmeticOperations"></td>
+      
+      </tr>
+        
+      <!-- 上から4段目 -->
+      <tr>
+        <td><input type="button" value="4" (click) = "getNumber('4')"class="number"></td>
+        <td><input type="button" value="5" (click) = "getNumber('5')"class="number"></td>
+        <td><input type="button" value="6" (click) = "getNumber('6')"class="number"></td>
+        <td><input type="button" value="-" (click) = "getOperation('-')" class="operator fourArithmeticOperations"></td>
+        
+      </tr>
+ 
+      <!-- 上から5段目 -->
+      <tr>
+        <td><input type="button" value="1" (click) = "getNumber('1')"class="number"></td>
+        <td><input type="button" value="2" (click) = "getNumber('2')"class="number"></td>
+        <td><input type="button" value="3" (click) = "getNumber('3')"class="number"></td>
+        <td><input type="button" value="+" (click) = "getOperation('+')" class="operator fourArithmeticOperations"></td>
+        
+      </tr>
+ 
+      <!-- 上から6段目 -->
+      <tr>
+        <td><input type="button" value="0" (click) = "getNumber('0')"class="number"></td>
+        <td><input type="button" value="00" (click) = "getNumber('00')"class="number"></td>
+        <td><input type="button" value="." (click) = "getDecimal()" class="decimal" ></td>
+        <td><input type="button" value="=" (click) = "getOperation('=')" class="equal" ></td>
+
+  
+      </tr>
+ 
+    </table>
+  </form>
+
+</body>
+
+<app-calc></app-calc>
+
+</html>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
+<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+
+<router-outlet />

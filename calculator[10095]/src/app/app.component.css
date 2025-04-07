@@ -1,0 +1,179 @@
+
+/* テーブルの装飾 */
+table {
+  /* 電卓のサイズ */
+  width: 300px;
+  height: 400px;
+  /* 電卓が浮き出るように影を付ける */
+  border: solid 1px #dcdcdca4;
+  border-right: solid 4px #dcdcdca4;
+  border-bottom: solid 4px #dcdcdca4;
+  border-radius: 10px;
+  /* インライン要素を中央に配置 */
+  text-align: center;
+  /* 余白調整 */
+  padding: 8px;
+  margin: 20px;
+
+  background-color: #eee7e7a4;
+}
+
+
+input {
+  /* ボタンのサイズ */
+  width: 70px;
+  height: 50px;
+  /* ボタンの文字サイズ */
+  font-size: x-large;
+  /* 数字部分の背景色 */
+  background-color: #bbbabaac;
+  /* ボタンの詳細設定 */
+  border: none;
+  border-radius: 20px;
+  /* クリック時の黒枠を消す */
+  outline: none;
+}
+
+
+.memoryOperator {
+  /* ボタンのサイズ */
+  width: 70px;
+  height: 35px;
+  /* ボタンの文字サイズ */
+  font-size: large;
+  /* 数字部分の背景色 */
+  background-color: #4a6adfa4;
+}
+
+.subOperator{
+  background-color: #b1b1b1;
+}
+
+/* ディスプレイの詳細設定 */
+.screen {
+  font-size: 20px;
+  width: 250px;
+  height: 30px;
+  text-align: right; /* 文字を右詰めに */
+  /* 見た目の詳細設定 */
+  background: #f0eeee;
+}
+
+/* ディスプレイの詳細設定 */
+.calculator-screen {
+  font-size: 30px;
+  width: 250px;
+  text-align: right; /* 文字を右詰めに */
+
+  /* 見た目の詳細設定 */
+  background: #fafafa;
+  border-top: solid #dcdcdca4 5px;
+  border-bottom: solid #dcdcdca4 5px;
+  border-right: solid #b6b6b6 6px;
+  border-left: solid #b6b6b6 6px;
+  border-radius: 5px;
+}
+
+/* 演算子の背景色を上書きで設定 */
+
+.fourArithmeticOperations{
+  background-color: #87cefa;
+}
+
+/* 記号＝の部分の背景色を上書きで設定 */
+.equal {
+  background-color: #60e688;
+}
+
+/* カーソルを上に乗せた時に色を濃くする */
+input:hover {
+  background: #747373b9;
+}
+.display:hover {
+  background: #ffffff; /* ディスプレイ部分は無効化 */
+}
+.fourArithmeticOperations:hover {
+  background: #339cdd;
+}
+.equal:hover{
+  background-color: #4db86d;
+}
+.memoryOperator:hover {
+  background-color: #293c80a4;
+}
+.subOperator:hover{
+  background-color: #7a7a7a;
+}
+
+/* クリック時に色を濃くする */
+input:active {
+  background:  #5a5a5a;
+}
+.fourArithmeticOperations:active {
+  background: #2c80b4;
+}
+
+.memoryOperator:active {
+  background-color: #192347a4;
+}
+.equal:active{
+  background-color: #40975a;
+}
+.subOperator:active{
+  background-color: #535353;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.display2 {
+  border: 1px solid lightgray;
+  width: 100px;
+  height: 20px;
+  text-align: right;
+  margin-bottom: 15px;
+  
+}
+
+.num-buttons {
+  display: grid;
+  /* height: 300px; */
+  width: 100%;
+  justify-items: center;
+  grid-template-columns: 33px 33px 33px;
+  grid-template-rows: 30px 30px 30px 30px;
+  grid-template-areas: 
+    ". . ."
+    ". . ."
+    ". . ."
+    ". center .";
+}
+
+.button-0 {
+  grid-area: center
+}
+
+.operator-buttons {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  grid-template-columns: 25px 25px 25px 25px;
+}
+
+.equals {
+  margin-top: 25px;
+  width: 100px;
+  height: 25px;
+  background-color: yellow;
+  color: black;
+  text-align: center;
+}
