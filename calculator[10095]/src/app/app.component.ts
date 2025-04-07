@@ -49,6 +49,7 @@ export class AppComponent implements OnInit {
 
   public getNumber(v: string){
     console.log(v);
+    console.log(this.waitForSecondNumber);
     if(this.screenText == null){
       this.currentNumber = v;
       this.screenText = v;
@@ -75,7 +76,7 @@ export class AppComponent implements OnInit {
     } else 
     if(this.currentNumber == '0'){
       this.currentNumber = v;
-      this.screenText = v;
+      this.screenText += v;
     } else {
       this.currentNumber += v;
       this.screenText += v;
@@ -88,10 +89,16 @@ export class AppComponent implements OnInit {
   }
 
   getPositiveNegative(){
+    console.log(this.operator);
       this.currentNumber = String(-1*Number(this.currentNumber));
-      if(this.screenText.includes(this.operator)){
-        this.screenText = this.firstOperand +this.operator + this.currentNumber;
-      }  else{
+      if(this.currentNumber == "0"){
+        this.screenText = "";
+      } else
+      if(this.operator){
+        if(this.screenText.includes(this.operator)){
+          this.screenText = this.firstOperand +this.operator + this.currentNumber;
+        }
+      } else {
       this.screenText = this.currentNumber;
       }
   }
@@ -209,7 +216,14 @@ export class AppComponent implements OnInit {
     } 
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
-    this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH) + "...";
+      console.log(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1));
+      if(this.currentNumber.includes(".")){
+        this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1))/10);
+       } else {
+        this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + "..."
+      }
+    console.log(this.operator);
+    
     }
   }
 
@@ -225,10 +239,18 @@ export class AppComponent implements OnInit {
   public reset(){
     this.currentNumber = '0';
     this.secondOperand = null;
-    if(this.operator= "="){
+    
+    console.log(this.operator);
+    if(this.screenText == "" || this.screenText == "0"){
       this.screenText = "";
-    } else{
-    this.screenText = this.firstOperand +this.operator;
+    } else
+    if(this.operator == "="){
+      this.screenText = "";
+    } else 
+    if(this.operator){
+    this.screenText = String(this.firstOperand) + " " + this.operator + " ";
+    } else {
+      this.screenText = "";
     }
   }
 
