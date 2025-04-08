@@ -56,7 +56,7 @@ export class AppComponent implements OnInit {
     console.log(v);
     console.log(this.waitForSecondNumber);
     
-    if(this.currentNumber == "Infinity"){
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
       this.currentNumber = v;
       this.screenText = v;
     } else
@@ -144,6 +144,14 @@ export class AppComponent implements OnInit {
   }
 
   public getOperation(op: string){
+
+    console.log(this.currentNumber == "Infinity" || this.currentNumber == "NaN")
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
+      this.currentNumber = "0";
+      this.screenText = op;
+      this.firstOperand = 0;
+    }
+ 
     
     if(op === '1/'){
       if(this.currentNumber === "0"){
@@ -228,7 +236,6 @@ export class AppComponent implements OnInit {
     } 
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
-      console.log(this.currentNumber);
 
       if(this.currentNumber.includes("e")){
         this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")-8) + Math.round(Number(this.currentNumber.substring(this.currentNumber.indexOf("e")-8,this.currentNumber.indexOf("e")-6))/10) 
@@ -267,6 +274,9 @@ export class AppComponent implements OnInit {
     this.secondOperand = null;
     
     console.log(this.operator);
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
+      this.screenText = "";
+    } else
     if(this.screenText == "" || this.screenText == "0"){
       this.screenText = "";
     } else
@@ -274,11 +284,11 @@ export class AppComponent implements OnInit {
       this.screenText = "";
     } else 
     if(this.operator){
-        if(String(this.firstOperand).indexOf("e") !== -1){
-        this.firstOperand = Number(String(this.firstOperand).substring(0,10) + "e" + String(this.firstOperand).substring(String(this.firstOperand).indexOf("e"),String(this.firstOperand).length));
+      let firstOperandString = String(this.firstOperand);
+        if(firstOperandString .indexOf("e") !== -1){
+          firstOperandString = firstOperandString .substring(0,10) + firstOperandString .substring(firstOperandString .indexOf("e"),firstOperandString .length);
         }
-      
-      this.screenText = String(this.firstOperand) + " " + this.operator + " ";
+      this.screenText = firstOperandString + " " + this.operator + " ";
     } else {
       this.screenText = "";
     }
@@ -334,11 +344,6 @@ export class AppComponent implements OnInit {
         this.screenText = this.screenText.slice(0, -1);
       }
     }
-
-
-  //最大文字数、桁制限
-
-
   
   ngOnInit(): void {
     
