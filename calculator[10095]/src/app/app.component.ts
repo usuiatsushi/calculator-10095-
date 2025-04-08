@@ -63,12 +63,13 @@ export class AppComponent implements OnInit {
           }   
         }
         this.currentNumber = memoryNumberString;
-        this.screenText = ''; 
+        this.firstOperand = null;
+        this.waitForSecondNumber = false;
+        this.screenText = this.currentNumber ; 
         
         break;
       case 'MC':
         this.memoryNumber = 0;
-        this.screenText = '';
         break;
     }
 
@@ -242,8 +243,8 @@ export class AppComponent implements OnInit {
 
     if(this.operator){
       if(this.screenText.slice(-2,-1) == this.operator && this.operator !== op){
-        this.screenText = this.screenText.substring(0,this.screenText.indexOf(this.operator)) + op + " ";
-        this.operator = op;
+            this.screenText = this.screenText.substring(0,this.screenText.length-2) + op + " ";
+            this.operator = op;
       } else {
           const result = this.doCalculation(this.operator , Number(this.currentNumber))
           this.currentNumber = String(result);
@@ -263,7 +264,9 @@ export class AppComponent implements OnInit {
       
       } 
     }
-
+    console.log(this.currentNumber)
+    console.log(this.screenText);
+    
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
       if(this.currentNumber.includes("e")){
