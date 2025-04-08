@@ -53,14 +53,21 @@ export class AppComponent implements OnInit {
       case 'MR':
         const MAX_LENGTH = 13;
         let memoryNumberString = String(this.memoryNumber)
-        console.log(memoryNumberString)
-        console.log(memoryNumberString.substring(0,13))
         if (memoryNumberString.length > MAX_LENGTH) {
           if(memoryNumberString.includes("e")){
             memoryNumberString = String(Math.round((Number(memoryNumberString.substring(0,10)))*(10**7))/(10**7)) + "e" + memoryNumberString.substring(memoryNumberString.indexOf("+"));
-          } else if(this.currentNumber.includes(".")){
-            memoryNumberString = String((Math.round(Number(memoryNumberString.substring(0,14)) * (10**(12-memoryNumberString.indexOf("."))))) / (10**(12-memoryNumberString.indexOf("."))) );
-          } else if(this.currentNumber.indexOf("-") == 0){
+          } else if(memoryNumberString.includes(".")){
+            console.log(memoryNumberString.indexOf("."));
+            console.log(memoryNumberString.substring(0,14));
+            
+            if(memoryNumberString.indexOf(".")<=11){
+              memoryNumberString = String((Math.round(Number(memoryNumberString.substring(0,14)) * (10**(12-memoryNumberString.indexOf("."))))) / (10**(12-memoryNumberString.indexOf("."))) );
+            } else if(memoryNumberString.indexOf("-") == 0){
+              memoryNumberString = "-" + String(Math.round(Number(memoryNumberString.substring(1,MAX_LENGTH-2))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(Number(memoryNumberString.indexOf("."))-1);
+            } else {
+              memoryNumberString = String(Math.round(Number(memoryNumberString.substring(0,MAX_LENGTH-3))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(Number(memoryNumberString.indexOf("."))-1);
+            }
+          } else if(memoryNumberString.indexOf("-") == 0){
             memoryNumberString = "-" + String(Math.round(Number(memoryNumberString.substring(1,MAX_LENGTH-2))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(memoryNumberString.length-2);
           } else {
             memoryNumberString = String(Math.round(Number(memoryNumberString.substring(0,MAX_LENGTH-3))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(memoryNumberString.length-1);
@@ -308,7 +315,16 @@ export class AppComponent implements OnInit {
       if(this.currentNumber.includes("e")){
           this.currentNumber = String(Math.round((Number(this.currentNumber.substring(0,10)))*(10**7))/(10**7)) + "e" + this.currentNumber.substring(this.currentNumber.indexOf("+"));
       } else if(this.currentNumber.includes(".")){
-        this.currentNumber = String((Math.round(Number(this.currentNumber.substring(0,14)) * (10**(12-this.currentNumber.indexOf("."))))) / (10**(12-this.currentNumber.indexOf("."))) );
+        console.log(this.currentNumber.indexOf("."));
+        console.log(this.currentNumber.substring(0,14));
+        
+          if(this.currentNumber.indexOf(".")<=11){
+              this.currentNumber = String((Math.round(Number(this.currentNumber.substring(0,14)) * (10**(12-this.currentNumber.indexOf("."))))) / (10**(12-this.currentNumber.indexOf("."))) );
+          } else if(this.currentNumber.indexOf("-") == 0){
+            this.currentNumber = "-" + String(Math.round(Number(this.currentNumber.substring(1,MAX_LENGTH-2))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(Number(this.currentNumber.indexOf("."))-1);
+          } else {
+            this.currentNumber = String(Math.round(Number(this.currentNumber.substring(0,MAX_LENGTH-3))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(Number(this.currentNumber.indexOf("."))-1);
+          }
       } else if(this.currentNumber.indexOf("-") == 0){
         this.currentNumber = "-" + String(Math.round(Number(this.currentNumber.substring(1,MAX_LENGTH-2))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(this.currentNumber.length-2);
       } else {
