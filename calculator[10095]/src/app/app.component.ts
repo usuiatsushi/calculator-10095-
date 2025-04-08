@@ -1,12 +1,10 @@
-import { Component,ElementRef,ViewChild,AfterViewInit,OnInit, input } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CalcComponent } from "./calc/calc.component";
-import { Observable } from 'rxjs';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CalcComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 
