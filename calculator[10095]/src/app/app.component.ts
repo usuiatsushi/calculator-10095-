@@ -1,6 +1,7 @@
 import { Component,ElementRef,ViewChild,AfterViewInit,OnInit, input } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CalcComponent } from "./calc/calc.component";
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -18,10 +19,10 @@ export class AppComponent implements OnInit {
 
 
   currentNumber = '0';
-  firstOperand: any = null;
+  firstOperand: number = null;
   operator: string = '';
   waitForSecondNumber = false;
-  secondOperand:any = null;
+  secondOperand:number = null;
   screenText:string = '';
   memoryNumber:number = null;
 
@@ -54,7 +55,11 @@ export class AppComponent implements OnInit {
   public getNumber(v: string){
     console.log(v);
     console.log(this.waitForSecondNumber);
-  
+    
+    if(this.currentNumber == "Infinity"){
+      this.currentNumber = v;
+      this.screenText = v;
+    } else
     if(this.screenText == null){
       this.currentNumber = v;
       this.screenText = v;
@@ -75,7 +80,7 @@ export class AppComponent implements OnInit {
     } else 
     if(this.waitForSecondNumber){
       this.currentNumber = v;
-      this.secondOperand = v;
+      this.secondOperand = Number(v);
       this.waitForSecondNumber = false;
       this.screenText += v;
     } else 
@@ -120,7 +125,7 @@ export class AppComponent implements OnInit {
       case '+':
       return this.firstOperand += secondOp;
       case '-': 
-      return this.firstOperand -= secondOp; 
+      return this.firstOperand -= secondOp;
       case '×': 
       return this.firstOperand *= secondOp; 
       case '÷': 
@@ -128,11 +133,13 @@ export class AppComponent implements OnInit {
       case '=':
       return secondOp;
       case '√':
-      return Math.sqrt(secondOp);
+      return Number(Math.sqrt(secondOp));
       case '²':
       return secondOp ** 2;
       case '1/':
       return 1 / secondOp;
+      default :
+      return 0;
     }
   }
 
@@ -267,7 +274,11 @@ export class AppComponent implements OnInit {
       this.screenText = "";
     } else 
     if(this.operator){
-    this.screenText = String(this.firstOperand) + " " + this.operator + " ";
+        if(String(this.firstOperand).indexOf("e") !== -1){
+        this.firstOperand = Number(String(this.firstOperand).substring(0,10) + "e" + String(this.firstOperand).substring(String(this.firstOperand).indexOf("e"),String(this.firstOperand).length));
+        }
+      
+      this.screenText = String(this.firstOperand) + " " + this.operator + " ";
     } else {
       this.screenText = "";
     }
