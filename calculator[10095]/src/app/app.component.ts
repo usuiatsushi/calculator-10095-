@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
         console.log(memoryNumberString.substring(0,13))
         if (memoryNumberString.length > MAX_LENGTH) {
           if(memoryNumberString.includes("e")){
-            memoryNumberString = memoryNumberString.substring(0,10) + "e+" + memoryNumberString.substring(memoryNumberString.indexOf("e")+2,memoryNumberString.length);
+            memoryNumberString = String(Math.round((Number(memoryNumberString.substring(0,10)))*(10**7))/(10**7)) + "e" + memoryNumberString.substring(memoryNumberString.indexOf("+"));
           } else if(this.currentNumber.includes(".")){
             memoryNumberString = String((Math.round(Number(memoryNumberString.substring(0,14)) * (10**(12-memoryNumberString.indexOf("."))))) / (10**(12-memoryNumberString.indexOf("."))) );
           } else if(this.currentNumber.indexOf("-") == 0){
@@ -241,26 +241,30 @@ export class AppComponent implements OnInit {
     } else 
 
     if(this.operator){
-      const result = this.doCalculation(this.operator , Number(this.currentNumber))
-      this.currentNumber = String(result);
-      this.firstOperand = result;
-      if(this.screenText === null){
-        this.screenText += " " + op;
-      } else 
-      if(op == "="){
-        this.screenText = "= " + result;
+      if(this.screenText.slice(-2,-1) == this.operator && this.operator !== op){
+        this.screenText = this.screenText.substring(0,this.screenText.indexOf(this.operator)) + op + " ";
         this.operator = op;
-        this.waitForSecondNumber = true;
       } else {
-        this.screenText =  result + " " + op + " " ;
-        this.operator = op;
-        this.waitForSecondNumber = true;
-      }
-    } 
+          const result = this.doCalculation(this.operator , Number(this.currentNumber))
+          this.currentNumber = String(result);
+          this.firstOperand = result;
+          if(this.screenText === null){
+            this.screenText += " " + op;
+          } else 
+          if(op == "="){
+            this.screenText = "= " + result;
+            this.operator = op;
+            this.waitForSecondNumber = true;
+          } else {
+            this.screenText =  result + " " + op + " " ;
+            this.operator = op;
+            this.waitForSecondNumber = true;
+          }
+      
+      } 
+    }
 
     const MAX_LENGTH = 13;
-    console.log(this.currentNumber)
-
     if (this.currentNumber.length > MAX_LENGTH) {
       if(this.currentNumber.includes("e")){
           this.currentNumber = String(Math.round((Number(this.currentNumber.substring(0,10)))*(10**7))/(10**7)) + "e" + this.currentNumber.substring(this.currentNumber.indexOf("+"));
@@ -279,14 +283,12 @@ export class AppComponent implements OnInit {
       }
        
       if(this.operator !== "="){
-        this.screenText += " " +this.operator;
+        this.screenText += " " +this.operator + " ";
       }
-
     }
-
     console.log(this.operator);
-    console.log(this.currentNumber)
   }
+
 
   public clear(){
     this.currentNumber = '0';
