@@ -24,29 +24,51 @@ export class AppComponent implements OnInit {
   waitForSecondNumber = false;
   secondOperand:number = null;
   screenText:string = '';
-  memoryNumber:number = null;
-
+  memoryNumber:number = 0;
+  
   
 
   public memoryOperation(op:string){
     switch (op){
       case 'M+':
+        if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
+          this.currentNumber = "0";
+          this.screenText = "";
+        } else {
         this.memoryNumber = this.memoryNumber + Number(this.currentNumber);
-        this.currentNumber = "0";
-        this.screenText = '';
+        }
+        console.log(this.memoryNumber)
         break;
       case 'M-':
-        this.memoryNumber = this.memoryNumber - Number(this.currentNumber);
-        this.currentNumber = "0";
-        this.screenText = '';
+        if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
+          this.currentNumber = "0";
+          this.screenText = "";
+        } else {
+          this.memoryNumber = this.memoryNumber - Number(this.currentNumber);
+        }
+        console.log(this.memoryNumber)
         break;
       case 'MR':
-        this.currentNumber = String(this.memoryNumber)
-        this.screenText = '';
+        const MAX_LENGTH = 13;
+        let memoryNumberString = String(this.memoryNumber)
+        console.log(memoryNumberString)
+        if (memoryNumberString.length > MAX_LENGTH) {
+          if(memoryNumberString.includes("e")){
+            memoryNumberString = memoryNumberString.substring(0,10) + "e+" + memoryNumberString.substring(memoryNumberString.indexOf("e")+2,memoryNumberString.length);
+          } else if(memoryNumberString.includes(".")){
+            memoryNumberString = memoryNumberString.substring(0,12) + Math.round(Number(memoryNumberString.substring(12,14))/10);;
+          } else {
+            memoryNumberString = memoryNumberString.substring(0,1) + "." + memoryNumberString.substring(1, MAX_LENGTH-4) + "e+" + String(memoryNumberString.length-1);
+          }   
+        }
+        this.currentNumber = memoryNumberString;
+        this.screenText = ''; 
+        
         break;
       case 'MC':
         this.memoryNumber = 0;
         this.screenText = '';
+        break;
     }
 
   }
@@ -55,7 +77,9 @@ export class AppComponent implements OnInit {
   public getNumber(v: string){
     console.log(v);
     console.log(this.waitForSecondNumber);
+
     
+
     if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
       this.currentNumber = v;
       this.screenText = v;
@@ -77,13 +101,13 @@ export class AppComponent implements OnInit {
     if(this.currentNumber !== "0" && this.screenText == ""){
       this.currentNumber = v;
       this.screenText = v;
-    } else 
+    } else
     if(this.waitForSecondNumber){
       this.currentNumber = v;
       this.secondOperand = Number(v);
       this.waitForSecondNumber = false;
       this.screenText += v;
-    } else 
+    } else
     if(this.currentNumber == '0'){
       this.currentNumber = v;
       this.screenText += v;
@@ -243,7 +267,7 @@ export class AppComponent implements OnInit {
       } else if(this.currentNumber.includes(".")){
         this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1))/10);
       } else {
-        this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-4) + "e+" + String(this.currentNumber.length);
+        this.currentNumber = this.currentNumber.substring(0, 1) + "." + this.currentNumber.substring(1, MAX_LENGTH-4) + "e+" + String(this.currentNumber.length-1);
       }   
 
       if(this.screenText.includes("=")){
@@ -270,13 +294,15 @@ export class AppComponent implements OnInit {
   }
 
   public reset(){
-    this.currentNumber = '0';
-    this.secondOperand = null;
-    
-    console.log(this.operator);
     if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
       this.screenText = "";
-    } else
+      this.firstOperand = null;
+    }
+
+    this.currentNumber = '0';
+    this.secondOperand = null;
+    console.log(this.operator);
+    
     if(this.screenText == "" || this.screenText == "0"){
       this.screenText = "";
     } else
@@ -290,6 +316,9 @@ export class AppComponent implements OnInit {
         }
       this.screenText = firstOperandString + " " + this.operator + " ";
     } else {
+      this.screenText = "";
+    }
+    if(this.screenText.includes("null")){
       this.screenText = "";
     }
   }
