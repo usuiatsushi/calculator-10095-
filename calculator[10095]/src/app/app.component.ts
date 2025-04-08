@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   secondOperand:number = null;
   screenText:string = '';
   memoryNumber:number = 0;
+  memoryNumberKeyOn: boolean = false;
   
   
 
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
         this.memoryNumber = this.memoryNumber + Number(this.currentNumber);
         }
         console.log(this.memoryNumber)
+        this.memoryNumberKeyOn = true;
         break;
       case 'M-':
         if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
@@ -45,6 +47,7 @@ export class AppComponent implements OnInit {
           this.memoryNumber = this.memoryNumber - Number(this.currentNumber);
         }
         console.log(this.memoryNumber)
+        this.memoryNumberKeyOn = true;
         break;
       case 'MR':
         const MAX_LENGTH = 13;
@@ -66,7 +69,7 @@ export class AppComponent implements OnInit {
         this.firstOperand = null;
         this.waitForSecondNumber = false;
         this.screenText = this.currentNumber ; 
-        
+        this.memoryNumberKeyOn = true;
         break;
       case 'MC':
         this.memoryNumber = 0;
@@ -79,6 +82,7 @@ export class AppComponent implements OnInit {
   public getNumber(v: string){
     console.log(v);
     console.log(this.waitForSecondNumber);
+    console.log(this.memoryNumberKeyOn);
 
     
 
@@ -104,6 +108,11 @@ export class AppComponent implements OnInit {
       this.currentNumber = v;
       this.screenText = v;
     } else
+    if(this.memoryNumberKeyOn == true){
+      this.currentNumber = v;
+      this.screenText = v;
+      this.memoryNumberKeyOn = false;
+    } else
     if(this.waitForSecondNumber){
       this.currentNumber = v;
       this.secondOperand = Number(v);
@@ -125,6 +134,8 @@ export class AppComponent implements OnInit {
   }
 
   getPositiveNegative(){
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
     console.log(this.operator);
       this.currentNumber = String(-1*Number(this.currentNumber));
       if(this.currentNumber == "0"){
@@ -140,6 +151,8 @@ export class AppComponent implements OnInit {
   }
 
   getDecimal(){
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
     if(!this.currentNumber.includes('.')){
         this.currentNumber += '.'; 
         this.screenText += '.'; 
@@ -170,7 +183,9 @@ export class AppComponent implements OnInit {
   }
 
   public getOperation(op: string){
-
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
+    
     if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
       this.currentNumber = "0";
       this.screenText = op;
@@ -294,6 +309,9 @@ export class AppComponent implements OnInit {
 
 
   public clear(){
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
+    
     this.currentNumber = '0';
     this.firstOperand = null;
     this.operator = '';
@@ -303,6 +321,9 @@ export class AppComponent implements OnInit {
   }
 
   public reset(){
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
+    
     if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
       this.screenText = "";
       this.firstOperand = null;
@@ -333,6 +354,9 @@ export class AppComponent implements OnInit {
   }
 
   public Delete(){
+    if(this.memoryNumberKeyOn == true)
+      this.memoryNumberKeyOn = false;
+    
       console.log(this.operator);
 
       if(this.screenText.includes("=")){
