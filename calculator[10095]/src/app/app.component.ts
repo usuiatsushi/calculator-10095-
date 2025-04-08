@@ -12,6 +12,9 @@ import { CalcComponent } from "./calc/calc.component";
 })
 
 export class AppComponent implements OnInit {
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
 
 
   currentNumber = '0';
@@ -21,6 +24,7 @@ export class AppComponent implements OnInit {
   secondOperand:any = null;
   screenText:string = '';
   memoryNumber:number = null;
+
   
 
   public memoryOperation(op:string){
@@ -50,6 +54,7 @@ export class AppComponent implements OnInit {
   public getNumber(v: string){
     console.log(v);
     console.log(this.waitForSecondNumber);
+  
     if(this.screenText == null){
       this.currentNumber = v;
       this.screenText = v;
@@ -96,7 +101,7 @@ export class AppComponent implements OnInit {
       } else
       if(this.operator){
         if(this.screenText.includes(this.operator)){
-          this.screenText = this.firstOperand +this.operator + this.currentNumber;
+          this.screenText = this.firstOperand +" " + this.operator + " " +this.currentNumber;
         }
       } else {
       this.screenText = this.currentNumber;
@@ -173,7 +178,7 @@ export class AppComponent implements OnInit {
         this.screenText = "√(0) = 0";
         this.currentNumber = "0";
         this.operator = "=";
-        this.waitForSecondNumber = false;
+        this.waitForSecondNumber = true;
       } else {
         this.operator = op;
         this.firstOperand = Number(this.currentNumber)
@@ -216,11 +221,25 @@ export class AppComponent implements OnInit {
     } 
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
-      console.log(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1));
-      if(this.currentNumber.includes(".")){
+      console.log(this.currentNumber);
+
+      if(this.currentNumber.includes("e")){
+        this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")-8) + Math.round(Number(this.currentNumber.substring(this.currentNumber.indexOf("e")-8,this.currentNumber.indexOf("e")-6))/10) 
+          + "e" + this.currentNumber.substring(this.currentNumber.indexOf("+"));
+      } else if(this.currentNumber.includes(".")){
         this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1))/10);
-       } else {
-        this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + "..."
+      } else {
+        this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-4) + "e+" + String(this.currentNumber.length);
+      }   
+
+      if(this.screenText.includes("=")){
+        this.screenText = this.screenText.substring(0,this.screenText.indexOf("=")) + "= " + this.currentNumber;
+      } else{
+        this.screenText = this.currentNumber; 
+      }
+       
+      if(this.operator !== "="){
+        this.screenText += " " +this.operator;
       }
     console.log(this.operator);
     
@@ -255,15 +274,52 @@ export class AppComponent implements OnInit {
   }
 
   public Delete(){
-    if(this.currentNumber === '0' ){
+      console.log(this.operator);
+
+      if(this.screenText.includes("=")){
+        this.screenText = this.currentNumber;
+        this.waitForSecondNumber = false;
+      }
+
+      if(this.screenText === '' || this.screenText === '0' ){
+        this.screenText = "";
+        this.currentNumber = '0';
+      } else
+      if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ||  this.screenText == "error"){
       this.currentNumber = '0';
-      } else if(this.screenText.slice(-1) == this.operator){
-        this.screenText = this.screenText.slice(0, -1);
+      this.firstOperand = null;
+      this.operator = '';
+      this.waitForSecondNumber = false;
+      this.screenText = null;
+      } else
+      if(this.screenText.includes("e")){
+        this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")) + "e+"+ String(Number((this.currentNumber.substring(this.currentNumber.indexOf("e")+1)))-1);
+        if(this.operator !== "="){
+          this.screenText = this.currentNumber + this.screenText.substring(this.screenText.indexOf(this.operator)-1);
+        } else{
+          this.screenText = this.currentNumber;
+        }
+        
+      } else
+      if(this.screenText.slice(-2,-1) == this.operator){
+        this.screenText = this.screenText.slice(0, -3);
         this.firstOperand = null;
         this.waitForSecondNumber = false;
         this.currentNumber = this.screenText
       } else{
         this.currentNumber = this.currentNumber.slice(0, -1);
+        this.screenText = this.screenText.slice(0, -1);
+      }
+
+      
+
+      if(this.screenText == '' || this.screenText == '0' || this.screenText == ' '){
+        this.screenText = "";
+        this.currentNumber = '0';
+      }
+
+      if(this.currentNumber == "-"){
+        this.currentNumber = "0"
         this.screenText = this.screenText.slice(0, -1);
       }
     }
