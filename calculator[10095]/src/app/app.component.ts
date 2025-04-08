@@ -50,13 +50,25 @@ export class AppComponent implements OnInit {
         const MAX_LENGTH = 13;
         let memoryNumberString = String(this.memoryNumber)
         console.log(memoryNumberString)
+        console.log(memoryNumberString.substring(12,14))
         if (memoryNumberString.length > MAX_LENGTH) {
           if(memoryNumberString.includes("e")){
             memoryNumberString = memoryNumberString.substring(0,10) + "e+" + memoryNumberString.substring(memoryNumberString.indexOf("e")+2,memoryNumberString.length);
           } else if(memoryNumberString.includes(".")){
-            memoryNumberString = memoryNumberString.substring(0,12) + Math.round(Number(memoryNumberString.substring(12,14))/10);;
+            
+            if(memoryNumberString.indexOf(".") !== 13 && memoryNumberString.indexOf(".") !== 14){
+              memoryNumberString = memoryNumberString.substring(0,12) + Math.round(Number(memoryNumberString.substring(12,14))/10);
+
+            } else if(memoryNumberString.includes("-")){
+              memoryNumberString = memoryNumberString.substring(0,2) + "." + memoryNumberString.substring(2, MAX_LENGTH-5) + Math.round(Number(memoryNumberString.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(memoryNumberString.length-1);
+            } else {
+              memoryNumberString = memoryNumberString.substring(0,1) + "." + memoryNumberString.substring(1, MAX_LENGTH-5) + Math.round(Number(memoryNumberString.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(memoryNumberString.length-1);
+            }
+
+          } else if(memoryNumberString.includes("-")){
+            memoryNumberString = memoryNumberString.substring(0,2) + "." + memoryNumberString.substring(2, MAX_LENGTH-5) + Math.round(Number(memoryNumberString.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(memoryNumberString.length-1);
           } else {
-            memoryNumberString = memoryNumberString.substring(0,1) + "." + memoryNumberString.substring(1, MAX_LENGTH-4) + "e+" + String(memoryNumberString.length-1);
+            memoryNumberString = memoryNumberString.substring(0,1) + "." + memoryNumberString.substring(1, MAX_LENGTH-5) + Math.round(Number(memoryNumberString.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(memoryNumberString.length-1);
           }   
         }
         this.currentNumber = memoryNumberString;
@@ -256,16 +268,19 @@ export class AppComponent implements OnInit {
         this.waitForSecondNumber = true;
       }
     } 
+
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
 
       if(this.currentNumber.includes("e")){
-        this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")-8) + Math.round(Number(this.currentNumber.substring(this.currentNumber.indexOf("e")-8,this.currentNumber.indexOf("e")-6))/10) 
+          this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")-8) + Math.round(Number(this.currentNumber.substring(this.currentNumber.indexOf("e")-8,this.currentNumber.indexOf("e")-6))/10) 
           + "e" + this.currentNumber.substring(this.currentNumber.indexOf("+"));
       } else if(this.currentNumber.includes(".")){
         this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH-1) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-1,MAX_LENGTH+1))/10);
+      } else if(this.currentNumber.includes("-")){
+        this.currentNumber = this.currentNumber.substring(0,2) + "." + this.currentNumber.substring(2, MAX_LENGTH-5) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(this.currentNumber.length-1);
       } else {
-        this.currentNumber = this.currentNumber.substring(0, 1) + "." + this.currentNumber.substring(1, MAX_LENGTH-4) + "e+" + String(this.currentNumber.length-1);
+        this.currentNumber = this.currentNumber.substring(0, 1) + "." + this.currentNumber.substring(1, MAX_LENGTH-5) + Math.round(Number(this.currentNumber.substring(MAX_LENGTH-5,MAX_LENGTH-3))/10) + "e+" + String(this.currentNumber.length-1);
       }   
 
       if(this.screenText.includes("=")){
