@@ -1,4 +1,5 @@
 import { Component,OnInit } from '@angular/core';
+import { s } from '@angular/core/weak_ref.d-Bp6cSy-X';
 import { RouterOutlet } from '@angular/router';
 
 
@@ -134,6 +135,12 @@ export class AppComponent implements OnInit {
   }
 
   getPositiveNegative(){
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+      this.currentNumber = "0";
+      this.screenText = "";
+      this.firstOperand = 0;
+    }
+
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
     console.log(this.operator);
@@ -153,10 +160,24 @@ export class AppComponent implements OnInit {
   getDecimal(){
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
+
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+      this.currentNumber = "0";
+      this.screenText = "";
+      this.firstOperand = 0;
+    }
+
+    if(this.currentNumber.includes('.')){
+    } else
+    if(Number(this.currentNumber) == 0){
+      this.currentNumber = "0.";
+      if(this.screenText == null){this.screenText = "0."} else {
+      this.screenText = `${this.screenText.substring(0, this.screenText.indexOf("00"))}0.`;}
+    } else
     if(!this.currentNumber.includes('.')){
         this.currentNumber += '.'; 
         this.screenText += '.'; 
-    }
+    } 
   }
 
   private doCalculation(op: string , secondOp: number){
@@ -186,7 +207,7 @@ export class AppComponent implements OnInit {
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
     
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
       this.currentNumber = "0";
       this.screenText = op;
       this.firstOperand = 0;
@@ -324,7 +345,7 @@ export class AppComponent implements OnInit {
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
     
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN"){
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
       this.screenText = "";
       this.firstOperand = null;
     }
@@ -358,13 +379,15 @@ export class AppComponent implements OnInit {
       this.memoryNumberKeyOn = false;
     
       console.log(this.operator);
-
-      if(this.screenText.includes("=")){
-        this.screenText = this.currentNumber;
-        this.waitForSecondNumber = false;
+      
+      if(this.screenText !== null){
+        if(this.screenText.includes("=")){
+          this.screenText = this.currentNumber;
+          this.waitForSecondNumber = false;
+        }
       }
 
-      if(this.screenText === '' || this.screenText === '0' ){
+      if(this.screenText == null || this.screenText === '' || this.screenText === '0' ){
         this.screenText = "";
         this.currentNumber = '0';
       } else
