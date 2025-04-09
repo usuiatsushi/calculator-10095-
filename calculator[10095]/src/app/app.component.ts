@@ -221,6 +221,10 @@ export class AppComponent implements OnInit {
       this.firstOperand = 0;
     }
 
+    if(this.operator && this.screenText.slice(-2,-1) == this.operator){
+       this.currentNumber = "0.";
+       this.screenText += "0."      
+    } else
     if(this.currentNumber.includes('.')){
       // 小数点すでにある時　何もしない　e+の時は有効数字的に何もしなくてもよいという判断
     } else
@@ -271,6 +275,15 @@ export class AppComponent implements OnInit {
     // メモリーキーオフ
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
+
+    console.log(this.currentNumber.slice(-1));
+    
+    if(this.currentNumber.slice(-1) == "." ){
+        this.currentNumber = this.currentNumber.slice(0,-1);
+        this.screenText = this.screenText.slice(0,-1);
+    }
+    
+    console.log(this.currentNumber);
     
     // 定義不可能
     if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
