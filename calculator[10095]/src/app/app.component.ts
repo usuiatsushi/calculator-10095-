@@ -1,4 +1,5 @@
 import { Component,OnInit } from '@angular/core';
+import { fakeAsync } from '@angular/core/testing';
 import { RouterOutlet } from '@angular/router';
 
 
@@ -114,6 +115,7 @@ export class AppComponent implements OnInit {
       // 定義不可能
       this.currentNumber = v;
       this.screenText = v;
+      this.waitForSecondNumber = false;
     } else
     if(this.screenText == null){
       // スクリーン上が空欄
@@ -159,11 +161,22 @@ export class AppComponent implements OnInit {
       this.currentNumber += v;
       this.screenText += v;
     }
+    
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
       // 文字数を13に制限　それ以降は反応しない
-    this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH);
-    this.screenText = this.screenText.substring(0,this.screenText.length-1)
+      if(v == "00"){
+          if(this.currentNumber.length == MAX_LENGTH + 1 ){
+              this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH);
+              this.screenText = this.screenText.substring(0,this.screenText.length-1)
+          } else if(this.currentNumber.length == MAX_LENGTH + 2 ){
+            this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH);
+            this.screenText = this.screenText.substring(0,this.screenText.length-2)
+          }
+      } else {
+          this.currentNumber = this.currentNumber.substring(0, MAX_LENGTH);
+          this.screenText = this.screenText.substring(0,this.screenText.length-1)
+      }
     }
   }
 
@@ -272,7 +285,7 @@ export class AppComponent implements OnInit {
           
         } else {
           const result = 1/Number(this.currentNumber)
-          this.screenText = "1 /(" +this.firstOperand + ") = " +result ; ;
+          this.screenText = "1 /(" +this.currentNumber + ") = " +result ; ;
           this.currentNumber = String(result);
           this.firstOperand = result;
           this.operator = "=";
@@ -343,7 +356,7 @@ export class AppComponent implements OnInit {
           
         } else {
           const result = Math.sqrt(Number(this.currentNumber))
-          this.screenText = "√(" +this.firstOperand + ") = " +result ; ;
+          this.screenText = "√(" +this.currentNumber + ") = " +result ; 
           this.currentNumber = String(result);
           this.firstOperand = result;
           this.operator = "=";
@@ -482,6 +495,7 @@ export class AppComponent implements OnInit {
     } else
     if(this.operator == "="){
       this.screenText = "";
+      this.firstOperand = 0;
     } else 
     if(this.operator){
       // 計算途中
@@ -491,7 +505,7 @@ export class AppComponent implements OnInit {
           firstOperandString = firstOperandString .substring(0,10) + firstOperandString .substring(firstOperandString .indexOf("e"),firstOperandString .length);
         }
       this.screenText = firstOperandString + " " + this.operator + " ";
-    } else {
+    } else {      
       this.screenText = "";
     }
     if(this.screenText.includes("null")){
