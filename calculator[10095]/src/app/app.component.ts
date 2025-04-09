@@ -153,7 +153,7 @@ export class AppComponent implements OnInit {
       this.waitForSecondNumber = false;
       this.screenText += v;
     } else
-    if(this.currentNumber == '0'){
+    if(this.currentNumber == '0' && this.screenText == ""){
       // スクリーン下が0のとき
       this.currentNumber = v;
       this.screenText += v;
