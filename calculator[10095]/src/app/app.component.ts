@@ -182,7 +182,7 @@ export class AppComponent implements OnInit {
   }
 
   getPositiveNegative(){
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+    if(this.currentNumber == "NaN" || this.currentNumber == "error"){
       //　定義不可能
       this.currentNumber = "0";
       this.screenText = "";
