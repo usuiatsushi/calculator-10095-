@@ -110,8 +110,14 @@ export class AppComponent implements OnInit {
     //　フラグチェック
     console.log(this.waitForSecondNumber);
     console.log(this.memoryNumberKeyOn);
+    
+    if(this.screenText !== null){
+    if(this.screenText.slice(-8) == "Infinity"){
+      this.screenText = this.screenText.slice(0,-8);
+      this.currentNumber = '0';
+    }}
 
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error" ){
+    if(this.currentNumber == "NaN" || this.currentNumber == "error" ){
       // 定義不可能
       this.currentNumber = v;
       this.screenText = v;
@@ -128,11 +134,6 @@ export class AppComponent implements OnInit {
       this.screenText = v;
       this.waitForSecondNumber = false;
     } else 
-    if(this.screenText == "1/(0) = undefined"){
-      // 定義不可能　一番上で消してるはずだが念のため。
-      this.currentNumber = v;
-      this.screenText = v;
-    } else
     if(this.currentNumber !== "0" && this.screenText == ""){
       // スクリーン上が空白　かつ　スクリーン下が0以外
       // メモリー機能など使用時
@@ -312,11 +313,6 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(1/Number(this.currentNumber));
           console.log(this.screenText);
           
-        } else if(this.currentNumber === "0"){
-          this.screenText = "1/(0) = undefined";
-          this.currentNumber = "error";
-          this.operator = "=";
-          this.waitForSecondNumber = true;
         } else {
           const result = 1/Number(this.currentNumber)
           this.screenText = "1 /(" +this.currentNumber + ") = " +result ; ;
@@ -327,12 +323,7 @@ export class AppComponent implements OnInit {
         }
       } else   
       // 数値のみ    
-      if(this.currentNumber === "0"){
-        this.screenText = "1/(0) = undefined";
-        this.currentNumber = "error";
-        this.operator = "=";
-        this.waitForSecondNumber = true;
-      } else {
+      {
         this.operator = op;
         this.firstOperand = Number(this.currentNumber)
         const result = this.doCalculation(this.operator , Number(this.currentNumber))
