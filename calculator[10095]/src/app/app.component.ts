@@ -1,5 +1,4 @@
 import { Component,OnInit } from '@angular/core';
-import { s } from '@angular/core/weak_ref.d-Bp6cSy-X';
 import { RouterOutlet } from '@angular/router';
 
 
@@ -94,7 +93,7 @@ export class AppComponent implements OnInit {
 
     
 
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ){
+    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error" ){
       this.currentNumber = v;
       this.screenText = v;
     } else
@@ -221,6 +220,22 @@ export class AppComponent implements OnInit {
     }
     
     if(op === '1/'){
+      if(this.operator){
+        if(this.operator !== "=")
+        { 
+          this.screenText = this.firstOperand + " " + this.operator + " " + 1/Number(this.currentNumber);
+          this.currentNumber = String(1/Number(this.currentNumber));
+          console.log(this.screenText);
+          
+        } else {
+          const result = 1/Number(this.currentNumber)
+          this.screenText = "1 /(" +this.firstOperand + ") = " +result ; ;
+          this.currentNumber = String(result);
+          this.firstOperand = result;
+          this.operator = "=";
+          this.waitForSecondNumber = true;
+        }
+      } else       
       if(this.currentNumber === "0"){
         this.screenText = "1/(0) = undefined";
         this.currentNumber = "error";
@@ -238,38 +253,66 @@ export class AppComponent implements OnInit {
       }
     } else
     if(op === '²'){
-      if(this.currentNumber === "0"){
-        this.screenText = "0² = 1";
-        this.currentNumber = "1";
-        this.operator = "=";
-        this.waitForSecondNumber = true;
-      } else {
-        this.operator = op;
-        this.firstOperand = Number(this.currentNumber)
-        const result = this.doCalculation(this.operator , Number(this.currentNumber))
-        this.currentNumber = String(result);
-        this.screenText = this.firstOperand+"² = " +result ;
-        this.firstOperand = result;
-        this.operator = "=";
-        this.waitForSecondNumber = true;
-      }
+      if(this.operator){
+          if(this.operator !== "=")
+          { 
+            this.screenText = this.firstOperand + " " +this.operator + " " + Number(this.currentNumber)**2 ;
+            this.currentNumber = String(Number(this.currentNumber)**2);
+          } else {
+            const result = Number(this.currentNumber)**2
+            this.screenText = this.currentNumber + "² = " +result ;
+            this.currentNumber = String(result);
+            this.firstOperand = result;
+            this.operator = "=";
+            this.waitForSecondNumber = true;
+          }
+      } else
+          if(this.currentNumber === "0"){
+            this.screenText = "0² = 0";
+            this.currentNumber = "0";
+            this.operator = "=";
+            this.waitForSecondNumber = true;
+          } else {
+            const result = Number(this.currentNumber)**2
+            this.screenText = this.currentNumber + "² = " +result ;
+            this.currentNumber = String(result);
+            this.firstOperand = result;
+            this.operator = "=";
+            this.waitForSecondNumber = true;
+          }
+      
     } else
 
     if(op === '√'){
-      if(this.currentNumber === "0"){
-        this.screenText = "√(0) = 0";
-        this.currentNumber = "0";
-        this.operator = "=";
-        this.waitForSecondNumber = true;
-      } else {
-        this.operator = op;
-        this.firstOperand = Number(this.currentNumber)
-        const result = this.doCalculation(this.operator , Number(this.currentNumber))
-        this.currentNumber = String(result);
-        this.screenText = "√(" +this.firstOperand + ") = " +result ;
-        this.firstOperand = result;
-        this.operator = "=";
-        this.waitForSecondNumber = true;  
+      console.log(this.firstOperand);
+      
+      if(this.operator){
+        if(this.operator !== "=")
+        { 
+          this.screenText = this.firstOperand + " " + this.operator + " " + Math.sqrt(Number(this.currentNumber));
+          this.currentNumber = String(Math.sqrt(Number(this.currentNumber)));
+          console.log(this.screenText);
+          
+        } else {
+          const result = Math.sqrt(Number(this.currentNumber))
+          this.screenText = "√(" +this.firstOperand + ") = " +result ; ;
+          this.currentNumber = String(result);
+          this.firstOperand = result;
+          this.operator = "=";
+          this.waitForSecondNumber = true;
+        }
+      } else if(this.currentNumber === "0"){
+                this.screenText = "√(0) = 0";
+                this.currentNumber = "0";
+                this.operator = "=";
+                this.waitForSecondNumber = true;
+      } else {  
+                const result = Math.sqrt(Number(this.currentNumber))
+                this.screenText = "√(" +this.currentNumber + ") = " +result ; ;
+                this.currentNumber = String(result);
+                this.firstOperand = result;
+                this.operator = "=";
+                this.waitForSecondNumber = true;
       }
     } else 
 
@@ -307,17 +350,13 @@ export class AppComponent implements OnInit {
       
       } 
     }
-    console.log(this.currentNumber)
-    console.log(this.screenText);
     
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
       if(this.currentNumber.includes("e")){
           this.currentNumber = String(Math.round((Number(this.currentNumber.substring(0,10)))*(10**7))/(10**7)) + "e" + this.currentNumber.substring(this.currentNumber.indexOf("+"));
       } else if(this.currentNumber.includes(".")){
-        console.log(this.currentNumber.indexOf("."));
-        console.log(this.currentNumber.substring(0,14));
-        
+      
           if(this.currentNumber.indexOf(".")<=11){
               this.currentNumber = String((Math.round(Number(this.currentNumber.substring(0,14)) * (10**(12-this.currentNumber.indexOf("."))))) / (10**(12-this.currentNumber.indexOf("."))) );
           } else if(this.currentNumber.indexOf("-") == 0){
@@ -330,17 +369,25 @@ export class AppComponent implements OnInit {
       } else {
         this.currentNumber = String(Math.round(Number(this.currentNumber.substring(0,MAX_LENGTH-3))/10)/(10**(MAX_LENGTH-5))) + "e+" + String(this.currentNumber.length-1);
       }   
-
+      
+      console.log(this.screenText);
+      
       if(this.screenText.includes("=")){
         this.screenText = this.screenText.substring(0,this.screenText.indexOf("=")) + "= " + this.currentNumber;
-      } else{
+      } else if(op !== '1/' && op !== '²' && op !== '√'){
         this.screenText = this.currentNumber; 
+      } else {
+        this.screenText = this.firstOperand + " " + this.operator + " " + this.currentNumber;
       }
        
-      if(this.operator !== "="){
-        this.screenText += " " +this.operator + " ";
+      if(op !== '1/' && op !== '²' && op !== '√'){
+        if(this.operator !== "="){
+          this.screenText += " " +this.operator + " ";
+        }
       }
+      
     }
+    
     console.log(this.operator);
   }
 
