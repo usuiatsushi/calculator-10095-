@@ -198,11 +198,13 @@ export class AppComponent implements OnInit {
         this.screenText = "";
       } else
         // 数値が0以外
-      if(this.operator){
+      if(this.operator && this.screenText.includes(this.operator)){
         // オペレーターがある時　計算途中
-        if(this.screenText.includes(this.operator)){
-          this.screenText = this.firstOperand +" " + this.operator + " " +this.currentNumber;
-        }
+          if(this.operator !== "="){
+            this.screenText = this.firstOperand +" " + this.operator + " " +this.currentNumber;
+          } else {
+            this.screenText = this.currentNumber;
+          }
       } else {
         // オペレーターなし　数値のみ
       this.screenText = this.currentNumber;
@@ -215,10 +217,18 @@ export class AppComponent implements OnInit {
       this.memoryNumberKeyOn = false;
 
     //　定義不可能
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+    if(this.currentNumber == "NaN" || this.currentNumber == "error"){
       this.currentNumber = "0";
       this.screenText = "";
       this.firstOperand = 0;
+    }
+    if(this.currentNumber == "Infinity"){
+      this.currentNumber = '0';
+      this.screenText = this.screenText.substring(0,this.screenText.indexOf("Infinity"));
+    } else
+    if(this.currentNumber == "-Infinity"){
+      this.currentNumber = '0';
+      this.screenText = this.screenText.substring(0,this.screenText.indexOf("-Infinity"));
     }
 
     if(this.operator && this.screenText.slice(-2,-1) == this.operator){
@@ -504,7 +514,7 @@ export class AppComponent implements OnInit {
       this.memoryNumberKeyOn = false;
     
     // 定義不可能
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+    if(this.currentNumber == "NaN" || this.currentNumber == "error"){
       this.screenText = "";
       this.firstOperand = null;
     }
@@ -556,7 +566,15 @@ export class AppComponent implements OnInit {
         this.screenText = "";
         this.currentNumber = '0';
       } else
-      if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" ||  this.screenText == "error"){
+      if(this.currentNumber == "Infinity"){
+        this.currentNumber = '0';
+        this.screenText = this.screenText.substring(0,this.screenText.indexOf("Infinity"));
+      } else
+      if(this.currentNumber == "-Infinity"){
+        this.currentNumber = '0';
+        this.screenText = this.screenText.substring(0,this.screenText.indexOf("-Infinity"));
+      } else
+      if(this.currentNumber == "NaN" ||  this.screenText == "error"){
       this.currentNumber = '0';
       this.firstOperand = null;
       this.operator = '';
