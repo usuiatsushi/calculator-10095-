@@ -161,6 +161,7 @@ export class AppComponent implements OnInit {
       this.currentNumber += v;
       this.screenText += v;
     }
+    this.memoryNumberKeyOn = false;
     
     const MAX_LENGTH = 13;
     if (this.currentNumber.length > MAX_LENGTH) {
