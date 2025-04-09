@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
       //M+
       case 'M+':
         
-        if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+        if(this.currentNumber == "NaN" || this.currentNumber == "error"){
           //定義不可能
           this.currentNumber = "0";
           this.screenText = "";
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
         break;
       //M-
       case 'M-':
-        if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error" ){
+        if(this.currentNumber == "NaN" || this.currentNumber == "error" ){
           //定義不可能
           this.currentNumber = "0";
           this.screenText = "";
@@ -286,7 +286,7 @@ export class AppComponent implements OnInit {
     console.log(this.currentNumber);
     
     // 定義不可能
-    if(this.currentNumber == "Infinity" || this.currentNumber == "NaN" || this.currentNumber == "error"){
+    if(this.currentNumber == "NaN" || this.currentNumber == "error"){
       this.currentNumber = "0";
       this.screenText = op;
       this.firstOperand = 0;
@@ -302,6 +302,11 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(1/Number(this.currentNumber));
           console.log(this.screenText);
           
+        } else if(this.currentNumber === "0"){
+          this.screenText = "1/(0) = undefined";
+          this.currentNumber = "error";
+          this.operator = "=";
+          this.waitForSecondNumber = true;
         } else {
           const result = 1/Number(this.currentNumber)
           this.screenText = "1 /(" +this.currentNumber + ") = " +result ; ;
