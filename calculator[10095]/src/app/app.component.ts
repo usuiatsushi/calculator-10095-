@@ -231,11 +231,16 @@ export class AppComponent implements OnInit {
       // 00の場合を考慮
       this.screenText = `${this.screenText.substring(0, this.screenText.indexOf("00"))}0.`;}
     } else
+    if(this.screenText.includes("=")){
+        this.currentNumber += '.'; 
+        this.screenText = this.currentNumber;
+    } else
     if(!this.currentNumber.includes('.')){
       // 通常時
         this.currentNumber += '.'; 
         this.screenText += '.'; 
     } 
+    this.waitForSecondNumber = false;
   }
 
   private doCalculation(op: string , secondOp: number){
