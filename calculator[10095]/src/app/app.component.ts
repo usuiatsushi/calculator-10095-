@@ -404,7 +404,7 @@ export class AppComponent implements OnInit {
     if(this.firstOperand === null){
       this.firstOperand = Number(this.currentNumber);
       if(this.screenText === null){
-        this.screenText = op;
+        this.screenText = op + " ";
       } else {
          this.screenText += " " + op + " ";
       }
