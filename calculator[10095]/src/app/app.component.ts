@@ -286,8 +286,6 @@ export class AppComponent implements OnInit {
     // メモリーキーオフ
     if(this.memoryNumberKeyOn == true)
       this.memoryNumberKeyOn = false;
-
-    console.log(this.currentNumber.slice(-1));
     
     if(this.currentNumber.slice(-1) == "." ){
         this.currentNumber = this.currentNumber.slice(0,-1);
@@ -415,7 +413,7 @@ export class AppComponent implements OnInit {
     } else 
     // 数値二つ目なら計算
     if(this.operator){
-      if(this.screenText.slice(-2,-1) == this.operator && this.operator !== op){
+      if(this.screenText.slice(-2,-1) == this.operator && this.operator !== op && this.screenText.slice(-1) == " "){
         // 四則演算を変更するだけ
             this.screenText = this.screenText.substring(0,this.screenText.length-2) + op + " ";
             this.operator = op;
