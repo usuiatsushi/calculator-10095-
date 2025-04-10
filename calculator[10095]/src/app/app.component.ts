@@ -571,14 +571,7 @@ export class AppComponent implements OnInit {
       this.screenText = null;
       } else
       if(this.screenText.includes("e")){
-        // e+nのとき　nを-1する
-        this.currentNumber = this.currentNumber.substring(0,this.currentNumber.indexOf("e")) + "e+"+ String(Number((this.currentNumber.substring(this.currentNumber.indexOf("e")+1)))-1);
-        if(this.operator !== "="){
-          this.screenText = this.currentNumber + this.screenText.substring(this.screenText.indexOf(this.operator)-1);
-        } else{
-          this.screenText = this.currentNumber;
-        }
-        
+        // e+nのとき そのまま維持        
       } else
       if(this.screenText.slice(-2,-1) == this.operator){
         // 四則演算のみ消去
