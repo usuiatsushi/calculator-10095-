@@ -424,7 +424,7 @@ export class AppComponent implements OnInit {
           this.firstOperand = result;
           // 結果に合わせてスクリーンに表示
           if(this.screenText === null){
-            this.screenText += " " + op;
+            this.screenText += " " + op + " ";
           } else 
           if(op == "="){
             this.screenText = "= " + result;
