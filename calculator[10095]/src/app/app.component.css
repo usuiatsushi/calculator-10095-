@@ -51,7 +51,7 @@ input {
 
 /* ディスプレイの詳細設定 */
 .screen {
-  font-size: 20px;
+  font-size: 18px;
   width: 250px;
   height: 30px;
   text-align: right; /* 文字を右詰めに */
@@ -61,7 +61,7 @@ input {
 
 /* ディスプレイの詳細設定 */
 .calculator-screen {
-  font-size: 30px;
+  font-size: 25px;
   width: 250px;
   text-align: right; /* 文字を右詰めに */
 
