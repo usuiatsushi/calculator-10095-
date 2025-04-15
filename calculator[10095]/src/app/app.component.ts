@@ -1,6 +1,5 @@
 import { Component,OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { zip } from 'rxjs';
 
 
 @Component({
@@ -807,9 +806,15 @@ export class AppComponent implements OnInit {
       if(this.undifined(this.currentNumber) == 0){  // 定義不可能
       this.currentNumber = "0"; this.screenText = "";}
 
-      console.log(this.operator,this.screenText?.slice(-1),this.equalKeyOn,this.operatorKeyOn);
-      
-      if(this.memoryNumberKeyOn){ // メモリーキー　の後は変更なし
+      console.log(this.operator,this.screenText?.slice(-1),this.equalKeyOn,this.operatorKeyOn,"a",this.screenText,"b",!this.screenText);
+
+      // メモリーキー　の後は変更なし
+      if(this.memoryNumberKeyOn){ 
+      } else  // スクリーンが0のとき
+      if(this.currentNumber == "0"){ 
+      } else  // サブスクリーンが null or "" の時
+      if(!this.screenText == true){   
+        this.currentNumber = this.currentNumber.slice(0, -1);
       } else
       if(this.operator !== "" && this.screenText?.slice(-1) == this.operator && this.operatorKeyOn == true){ // x + x + x + 　保持する
       } else
@@ -825,11 +830,6 @@ export class AppComponent implements OnInit {
       } else
       if(this.currentNumber?.includes("e") == true){ // e+nのとき スクリーンのみ消去 
         this.screenText = "";
-      } else
-      if(this.currentNumber == "0"){    // スクリーンが0のとき
-      } else 
-      if(this.screenText == null){    // サブスクリーンが null の時
-        this.currentNumber = this.currentNumber.slice(0, -1);
       } else {     // 基本は一文字消去
         this.currentNumber = this.currentNumber.slice(0, -1);
         this.screenText = this.screenText?.slice(0, -1); 
