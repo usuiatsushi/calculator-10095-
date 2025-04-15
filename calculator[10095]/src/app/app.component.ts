@@ -11,6 +11,12 @@ import { RouterOutlet } from '@angular/router';
 })
 
 export class AppComponent implements OnInit {
+  
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
+
+
   isFormDisabled = false;    // オペレーターなどを有効
   isMemoryDisabled = true;    //  MR,MC を無効
 
