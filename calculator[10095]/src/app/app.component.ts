@@ -816,25 +816,28 @@ export class AppComponent implements OnInit {
       if(this.operator !== "" && this.screenText?.slice(-1) == this.operator){ //  x + y の yのみ消去
         this.currentNumber = "0";
       } else 
-      if(this.operator == "" && this.screenText?.includes("=")){
+      if(this.operator == "" && this.screenText?.includes("=") == true){
       } else
-      if(this.screenText?.includes('=')){ // x + y = z  スクリーンのみ消去
+      if(this.screenText?.includes('=') == true){ // x + y = z  スクリーンのみ消去
           this.screenText = ""
       } else
       if(this.screenText?.includes(this.operator) == true){ //  8 + √ 9   保持する
       } else
-      if(this.currentNumber?.includes("e")){ // e+nのとき スクリーンのみ消去 
+      if(this.currentNumber?.includes("e") == true){ // e+nのとき スクリーンのみ消去 
         this.screenText = "";
       } else
-      if(this.currentNumber == "0"){    // 入力値が0のとき
+      if(this.currentNumber == "0"){    // スクリーンが0のとき
       } else 
-      if(this.screenText == null){    // 結果表示が null の時
+      if(this.screenText == null){    // サブスクリーンが null の時
         this.currentNumber = this.currentNumber.slice(0, -1);
       } else {     // 基本は一文字消去
         this.currentNumber = this.currentNumber.slice(0, -1);
-        this.screenText = this.screenText?.slice(0, -1);
+        this.screenText = this.screenText?.slice(0, -1); 
+      } 
+      // currentNumber がnull なら0 に
+      if(this.currentNumber == ""){
+        this.currentNumber = "0"
       }
-
       // 実数値を置き換え
       this.currentRealNumber = Number(this.currentNumber);
     }
