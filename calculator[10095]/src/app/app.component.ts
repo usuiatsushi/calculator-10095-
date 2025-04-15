@@ -1,7 +1,6 @@
-import { Component,input,OnInit } from '@angular/core';
-import { A } from '@angular/core/weak_ref.d-Bp6cSy-X';
+import { Component,OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { subscribeOn } from 'rxjs';
+import { zip } from 'rxjs';
 
 
 @Component({
@@ -17,7 +16,8 @@ export class AppComponent implements OnInit {
   isMemoryDisabled = true;    //  MR,MC を無効
 
   currentNumber: string = '0';    // スクリーン
-    currentNumberAbs: string = "0"  //  スクリーンの絶対値
+    currentNumberAbs: string = "0";  //  スクリーンの絶対値
+    currentRealNumber: number = 0;  // スクリーンの実数値
 
   screenText:string = '';   // サブスクリーン
 
@@ -38,7 +38,9 @@ export class AppComponent implements OnInit {
   
   
   // 文字数制限
-  MAX_LENGTH:number = 12;
+  MAX_LENGTH:number = 25;
+  zahlenMaxLength:number = 10;
+  decimalMaxLength:number = 8;
   
   
   //メモリ機能
@@ -48,7 +50,7 @@ export class AppComponent implements OnInit {
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {  //計算
-          this.memoryNumber = this.memoryNumber + Number(this.currentNumber);
+          this.memoryNumber = this.memoryNumber + this.currentRealNumber;
         }
         if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
           console.log(this.secondOperand,"this.secondOperand");
@@ -69,7 +71,7 @@ export class AppComponent implements OnInit {
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {    //計算
-          this.memoryNumber = this.memoryNumber - Number(this.currentNumber);
+          this.memoryNumber = this.memoryNumber - this.currentRealNumber;
         }
         if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
           console.log(this.secondOperand,"this.secondOperand");
@@ -88,6 +90,22 @@ export class AppComponent implements OnInit {
         break;
       case 'MR': //MR
         this.currentNumber = String(this.memoryNumber); // 結果を表示
+
+        // セカンドオペランドを設定
+        // x + y = z の時 次の計算に移行 + y を保存する
+        if(this.equalKeyOn == true && this.operator !== ""){  
+          if(this.secondOperand == null){
+            this.secondOperandString = this.screenText.slice(this.screenText.indexOf(" " + this.operator + " ")+3,this.screenText.indexOf("=")-1);
+            const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
+            this.secondOperand = secondOpresult;
+          }
+        this.screenText = "";
+        } else
+        //  x + y^2 の時　y で上書き
+        if(this.subOperatorKeyOn == true && this.operator !== ""){  
+          this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
+        }
+
           
         // 絶対値を求める
         if(Math.sign(Number(this.currentNumber)) == -1){
@@ -96,40 +114,80 @@ export class AppComponent implements OnInit {
           this.currentNumberAbs = this.currentNumber;
         }
         
-        // 文字数制限
-        if (this.currentNumberAbs.length > this.MAX_LENGTH) {     // MAX_LENGTH より文字数多いとき
-          if(this.currentNumberAbs.includes("e")){    // ~e+~ の時
-            if(this.currentNumberAbs.indexOf("e") <= this.MAX_LENGTH){this.currentNumberAbs = this.currentNumberAbs; }
-            else{
-              this.currentNumberAbs = String(Math.round((Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+1)))*(10**(this.MAX_LENGTH-2)))/(10**(this.MAX_LENGTH-2))) + "e" + this.currentNumberAbs.substring(this.currentNumberAbs.indexOf("e")+1);
+        // 定義不可能でない
+        if(this.undifined(this.currentNumber) == 0){
+        } else
+          // ~ e- の時
+        if(this.currentNumberAbs.includes("e-")){
+           // ~ e- の　~ を抽出
+          const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e-"));
+
+            // 整数部分がzahlenMaxLength 桁以上
+            if(a.length > this.zahlenMaxLength + 1){
+              // ~ を整数に変換
+              const b = a.slice(0,this.zahlenMaxLength + 2);
+              const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
+              const d = Number(c.slice(0,1) + "." + c.slice(1));
+              this.currentNumberAbs = String(d) + "e-" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e-")+2);
+
+              console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
+            } 
+        } else
+        // ~ e+ の時
+        if(this.currentNumberAbs.includes("e+")){
+
+          // ~ e+ の　~ を抽出
+          const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e+"));
+
+          // 整数部分がzahlenMaxLength 桁以上
+          if(a.length > this.zahlenMaxLength + 1){
+            // ~ を整数に変換
+            const b = a.slice(0,this.zahlenMaxLength + 2);
+            const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
+            const d = Number(c.slice(0,1) + "." + c.slice(1));
+            this.currentNumberAbs = String(d) + "e+" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e+")+2);
+
+            console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
+          } 
+        } else
+        // 整数のみ
+        if(this.currentNumberAbs.includes(".") == false){
+
+        console.log(this.currentNumberAbs.length,this.zahlenMaxLength);
+      
+          // zahlenMaxLength 桁以上なら e+
+          if(this.currentNumberAbs.length > this.zahlenMaxLength){
+            const a = this.currentNumberAbs.slice(0,this.zahlenMaxLength+1);
+            const b = String(Math.round(Number(a)/10));
+            const c = Number(b.slice(0,1) + "." + b.slice(1));
+            this.currentNumberAbs = String(c) + "e+" + String(this.currentNumberAbs.length-1);
+          } 
+        } else
+        // 小数点あり
+        if(this.currentNumberAbs.includes(".")){
+          
+          console.log(this.currentNumberAbs.indexOf(".")," .");
+          
+          const a = this.currentNumberAbs.slice(this.currentNumberAbs.indexOf(".") + 1)
+          if(a.length > this.decimalMaxLength){
+            const b = a.slice(this.decimalMaxLength - 1,this.decimalMaxLength + 1);
+            const c = Math.round(Number(b)/10);
+            if(c == 10){
+              const d = Number(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + "9");
+              this.currentNumberAbs = String(d + 10**(-this.decimalMaxLength));
+              console.log(d,"d");
+            console.log(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1),a.slice(0,this.decimalMaxLength - 1),a,b,c);
+            } else {
+              this.currentNumberAbs = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + c;
             }
-          } else 
-          if(this.currentNumberAbs.includes(".")){    // 小数点あり
-            console.log(this.currentNumberAbs.indexOf(".")," .");
-              this.currentNumberAbs = String((Math.round(Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+2)) * (10**((this.MAX_LENGTH)-this.currentNumberAbs.indexOf("."))))) / (10**((this.MAX_LENGTH)-this.currentNumberAbs.indexOf("."))));
-              if(this.currentNumberAbs == String(10**this.MAX_LENGTH)){this.currentNumberAbs = "1.0e+" + this.MAX_LENGTH ;}   // 1000000000000の時　1.0e+12に書き換え　MAX_LENGTHを変更したら変更
-          } else {    // MAX_LENGTH+1 桁以上
-              this.currentNumberAbs = String(Math.round(Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+1))/10)/(10**(this.MAX_LENGTH-1))) + "e+" + String(this.currentNumberAbs.length-1);
           }
-
-          if(Math.sign(Number(this.currentNumber)) == -1){    // 絶対値を値に戻す
-            this.currentNumber =  "-" +  this.currentNumberAbs;
-          } else { this.currentNumber = this.currentNumberAbs;}
         }
-
-
-        if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
-            if(this.secondOperand == null){
-              this.secondOperandString = this.screenText.slice(this.screenText.indexOf(" " + this.operator + " ")+3,this.screenText.indexOf("=")-1);
-              const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
-              this.secondOperand = secondOpresult;
-            }
-          this.screenText = "";
-        }
-        if(this.subOperatorKeyOn == true && this.operator !== ""){  //  x + y^2 の時　y で上書き
-          this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
-        }
-
+     
+        if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数        
+          this.currentNumber =  "-" +  this.currentNumberAbs;  
+        } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
+      
+        
         // フラグオフ
         this.waitForSecondNumber = false;
         this.memoryNumberKeyOn = true;  // メモリーキーチェック
@@ -184,6 +242,9 @@ export class AppComponent implements OnInit {
       this.currentNumber = "0";
     }
 
+    // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
+
     //　フラグオフ
     this.isFormDisabled = false;
     this.memoryNumberKeyOn = false;
@@ -191,7 +252,9 @@ export class AppComponent implements OnInit {
     this.subOperatorKeyOn = false;
     this.equalKeyOn = false;
 
-    //10億の桁まで計算できること  小数点は最大8位まで表示できること // 桁数増やすならMAX_LENGTH を調整
+    //10億の桁まで計算できること  小数点は最大8位まで表示できること 
+
+    // 絶対値を取得
     if(Math.sign(Number(this.currentNumber)) == -1){
       this.currentNumberAbs = this.currentNumber.slice(1);
     }
@@ -199,41 +262,72 @@ export class AppComponent implements OnInit {
 
     console.log(this.currentNumberAbs,"currentNumberAbs");
     
-    if (this.currentNumberAbs.length > this.MAX_LENGTH) {
-      // 入力値の絶対値の文字数をMAX_LENGTHに制限　それ以降は反応しない
-      if(v == "00"){
-          if(this.currentNumberAbs.length == this.MAX_LENGTH + 1){
-              this.currentNumber =  this.currentNumber.substring(0,this.currentNumber.length-1);
-          } else if(this.currentNumber.length == this.MAX_LENGTH + 2){
-            this.currentNumber =  this.currentNumber.substring(0,this.currentNumber.length-2);
-          }
-      } else {
-          this.currentNumber = this.currentNumber.substring(0,this.currentNumber.length-1);
+    // 整数のみ
+    if(this.currentNumberAbs.includes(".") == false){
+
+      console.log(this.currentNumberAbs.length,this.zahlenMaxLength);
+      
+      // zahlenMaxLength 桁以上なら入力無効
+      if(this.currentNumberAbs.length > this.zahlenMaxLength){
+        this.currentNumberAbs = this.currentNumberAbs.slice(0,this.zahlenMaxLength);
+      } 
+    } else
+    // 小数点含む
+    if(this.currentNumberAbs.includes(".") == true){
+
+      console.log(this.currentNumberAbs.length,this.currentNumberAbs.indexOf("."));
+      
+      // 小数点以下がdecimalMaxLengt 桁以上なら入力無効
+      if(this.currentNumberAbs.length - this.currentNumberAbs.indexOf(".") - 1 > this.decimalMaxLength){
+        this.currentNumberAbs = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".")+1+this.decimalMaxLength);
       }
     }
+
+    // 符号を戻す
+    if(Math.sign(Number(this.currentNumber)) == -1){
+      this.currentNumber = "-" + this.currentNumberAbs;
+    }
+      this.currentNumber = this.currentNumberAbs ;
   }
 
   getPositiveNegative(){
     
     if(this.undifined(this.currentNumber) == 0){  // 定義不可能
       this.currentNumber = "0"; this.screenText = "";}
-
-    console.log(this.operator);
+      
+      const A = this.currentNumber
 
       if(this.currentNumber == "0"){  // 数値が0の時
-      this.screenText = "";
       } else
       if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数
         this.currentNumber = this.currentNumber.slice(1);
-        if(this.screenText !== ""){
-          
-        }
       } else {  // 正の数
       this.currentNumber = "-" + this.currentNumber;
-      }   
+      }  
+
+      if(this.screenText == ""){  //サブスクリーンなし
+      } else
+      if(this.screenText?.slice(-1) == "="){ // x + y = z の時
+        this.screenText = "negate(" + A + ")";
+      } else
+      if(this.screenText?.includes("negate")){ // negate() の時
+        this.screenText = this.screenText?.slice(0,this.screenText.indexOf("negate")) + "negate(" + this.screenText?.slice(this.screenText.indexOf("negate")) + ")";
+      } else
+      if(this.screenText?.slice(-1) == this.operator && this.operatorKeyOn){ // x + の次に押したとき
+        this.screenText = this.screenText + " negate(" + A + ")";
+      } else
+      if(this.subOperatorKeyOn == true && this.operator !== ""){  // x + √(y) の時
+        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator + " " ) + 3) + "negate(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator + " " ) + 2) + ")";
+      } else
+      if(this.subOperatorKeyOn == true && this.operator == ""){   // x^2 のとき
+        this.screenText = "negate(" + this.screenText + ")";
+      }
+
+      // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
 
       //　フラグオフ
-      this.memoryNumberKeyOn = false;
+    this.memoryNumberKeyOn = false;
   }
 
   getDecimal(){
@@ -244,15 +338,6 @@ export class AppComponent implements OnInit {
       this.screenText = "";
       this.firstOperand = 0;
     }
-
-    if(this.currentNumber == "Infinity"){
-      this.currentNumber = '0';
-      this.screenText = this.screenText.substring(0,this.screenText.indexOf("Infinity"));
-    } else
-    if(this.currentNumber == "-Infinity"){
-      this.currentNumber = '0';
-      this.screenText = this.screenText.substring(0,this.screenText.indexOf("-Infinity"));
-    } 
 
     if(Math.sign(Number(this.currentNumber)) == -1){
       this.currentNumberAbs = this.currentNumber.slice(1);
@@ -280,6 +365,10 @@ export class AppComponent implements OnInit {
     if(!this.currentNumber.includes('.')){
         this.currentNumber += '.'; 
     } 
+
+    // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
+
      //　フラグをオフ
     this.memoryNumberKeyOn = false;
     this.waitForSecondNumber = false;
@@ -321,15 +410,16 @@ export class AppComponent implements OnInit {
     
     console.log(this.subOperatorKeyOn,"this.subOperatorKeyOn",this.equalKeyOn, "this.equalKeyOn",this.operatorKeyOn,"operatorKeyOn",this.operator,"operator",op,"op");
     
-    
     if(this.undifined(this.currentNumber) == 0){ // 定義不可能
       this.currentNumber = "0";
       this.firstOperand = 0;
       this.screenText = ""; 
+      this.isFormDisabled = false;
 
     } else // 0で割ることはできません
     if(this.operator == "÷" && op == '=' && this.currentNumber == "0"){
           this.currentNumber = '0で割ることはできません'; // font-size 変えたい
+          this.isFormDisabled = true;
           
     } else
     // サブオペレーター
@@ -348,20 +438,20 @@ export class AppComponent implements OnInit {
             this.secondOperand = secondOpresult;
           }    
           console.log(this.secondOperand,"this.secondOperand");
-          const result = 1/Number(this.currentNumber)
+          const result = 1/this.currentRealNumber
           this.screenText = "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
       } else
       if(this.operator !== "" && this.subOperatorKeyOn == true){
         this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator)) +" " +this.operator + " " + "1/(" +this.currentNumber + ")" ;
-        this.currentNumber = String(1/Number(this.currentNumber));
+        this.currentNumber = String(1/this.currentRealNumber);
       } else
       if(this.operator){
           this.screenText = this.screenText + " " + "1/(" +this.currentNumber + ")" ;
-          this.currentNumber = String(1/Number(this.currentNumber));
+          this.currentNumber = String(1/this.currentRealNumber);
       } else  {  // 数値のみ 
-          const result = 1/Number(this.currentNumber)
+          const result = 1/this.currentRealNumber
           this.screenText = "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
@@ -383,20 +473,20 @@ export class AppComponent implements OnInit {
               this.secondOperand = secondOpresult;
             }    
           console.log(this.secondOperand,"this.secondOperand");
-          const result = Number(this.currentNumber)**2
+          const result = this.currentRealNumber**2
           this.screenText = "(" + this.currentNumber + ")" + "²" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
       } else
       if(this.operator !== "" && this.subOperatorKeyOn == true){
           this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator)) +" " +this.operator + " (" + this.currentNumber + ")" + "²";
-          this.currentNumber = String(Number(this.currentNumber)**2);
+          this.currentNumber = String(this.currentRealNumber**2);
       } else
       if(this.operator){
           this.screenText = this.screenText + " " + "(" + this.currentNumber + ")" + "²";
-          this.currentNumber = String(Number(this.currentNumber)**2);
+          this.currentNumber = String(this.currentRealNumber**2);
       } else {  // 数値のみ
-          const result = Number(this.currentNumber)**2
+          const result = this.currentRealNumber**2
           this.screenText = "(" + this.currentNumber + ")" + "²" ;
           this.currentNumber = String(result);
           this.firstOperand = result;    
@@ -423,20 +513,20 @@ export class AppComponent implements OnInit {
             this.secondOperand = secondOpresult;
           }    
           console.log(this.secondOperand,"this.secondOperand");
-          const result = Math.sqrt(Number(this.currentNumber))
+          const result = Math.sqrt(this.currentRealNumber)
           this.screenText = "√(" +this.currentNumber + ")" ; 
           this.currentNumber = String(result);
           this.firstOperand = result;
       } else
       if(this.operator !== "" && this.subOperatorKeyOn == true){
         this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator)) +" " +this.operator + " " + "√(" +this.currentNumber + ")";
-        this.currentNumber = String(Math.sqrt(Number(this.currentNumber)));
+        this.currentNumber = String(Math.sqrt(this.currentRealNumber));
       } else
       if(this.operator){         //   +-×÷　の後
           this.screenText += " " + "√(" +this.currentNumber + ")";
-          this.currentNumber = String(Math.sqrt(Number(this.currentNumber)));
+          this.currentNumber = String(Math.sqrt(this.currentRealNumber));
       } else {    // 数値のみ
-          const result = Math.sqrt(Number(this.currentNumber))
+          const result = Math.sqrt(this.currentRealNumber)
           this.screenText = "√(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
@@ -449,16 +539,16 @@ export class AppComponent implements OnInit {
     } else {
     // メインオペレータ
           if(this.firstOperand === null){   // オペランドチェック　数値一つ目か二つ目か
-            this.firstOperand = Number(this.currentNumber);    // ファーストオペランドを設定
+            this.firstOperand = this.currentRealNumber;    // ファーストオペランドを設定
             this.screenText = this.currentNumber + " " + op;
             this.waitForSecondNumber = true;
           } else 
           if(this.operator == "" && this.subOperatorKeyOn == true){  // x^2 +　の時
-            this.firstOperand = Number(this.currentNumber);
+            this.firstOperand = this.currentRealNumber;
             this.screenText = this.screenText + " " + op;
             this.waitForSecondNumber = true;
           } else 
-          if(this.equalKeyOn == true && op == "="){   // = 連打
+          if(this.equalKeyOn == true && this.operator!== "" && op == "="){   // = 連打
               console.log(this.secondOperand,"this.secondOperand");
               const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
               console.log(secondOpresult,"secondOpresult");
@@ -467,7 +557,7 @@ export class AppComponent implements OnInit {
                 this.secondOperand = secondOpresult;
               }    
               console.log(this.secondOperand,"this.secondOperand");
-              this.firstOperand = Number(this.currentNumber);
+              this.firstOperand = this.currentRealNumber;
               this.screenText = this.currentNumber + " " + this.operator + " " + this.secondOperandString + " =";
               const result = this.doCalculation(this.operator , Number(this.secondOperand))
               this.currentNumber = String(result);
@@ -489,26 +579,26 @@ export class AppComponent implements OnInit {
                 this.waitForSecondNumber = true;
           } else 
           if(this.subOperatorKeyOn == true && op == "=" && this.secondOperand == null){
-                const result = this.doCalculation(this.operator , Number(this.currentNumber));
+                const result = this.doCalculation(this.operator , this.currentRealNumber);
                 this.screenText = this.screenText + " =";
                 this.currentNumber = String(result);
                 this.firstOperand = result;
                 this.waitForSecondNumber = true;
           } else
           if(this.subOperatorKeyOn == true && op !== "="){
-                this.firstOperand = Number(this.currentNumber);
+                this.firstOperand = this.currentRealNumber;
                 this.screenText = this.screenText + " " + op;
                 this.waitForSecondNumber = true;
           } else // =　で計算
           if(this.operator  && op == "="){  
-                const result = this.doCalculation(this.operator , Number(this.currentNumber));
+                const result = this.doCalculation(this.operator , this.currentRealNumber);
                 this.screenText = this.screenText + " " + this.currentNumber + " " + op;
                 this.currentNumber = String(result);
                 this.firstOperand = result;
                 this.waitForSecondNumber = true;     
           } else // その他で計算
           if(this.operator  && op !== "="){
-                const result = this.doCalculation(this.operator , Number(this.currentNumber))
+                const result = this.doCalculation(this.operator , this.currentRealNumber)
                 this.screenText = result + " " + op;
                 this.currentNumber = String(result);
                 this.firstOperand = result;
@@ -521,46 +611,118 @@ export class AppComponent implements OnInit {
           if(op == "="){this.equalKeyOn = true;}else{this.equalKeyOn=false;}
 
     }
-  
+
+    // Infinity をオーバーフローに
+    if(this.currentNumber == 'Infinity'){
+      this.currentNumber = 'オーバーフロー';
+      this.isFormDisabled = true;
+    }
+
+    // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
+
+    console.log(this.currentNumber,"this.currentNumber",this.currentRealNumber,'this.currentRealNumber');
+    
+    // 絶対値を取得
     if(Math.sign(Number(this.currentNumber)) == -1){
       this.currentNumberAbs = this.currentNumber.slice(1);
     } else{
       this.currentNumberAbs = this.currentNumber;
     }
-
+    
     console.log(this.currentNumberAbs,"this.currentNumberAbs");
     
-    if (this.currentNumberAbs.length > this.MAX_LENGTH) {
-      // ~e+~ の時
-      if(this.currentNumberAbs.includes("e")){ 
-          if(this.currentNumberAbs.indexOf("e") <= this.MAX_LENGTH + 1){this.currentNumberAbs = this.currentNumberAbs; }
-          else{
-            this.currentNumberAbs = String(Math.round((Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+1)))*(10**(this.MAX_LENGTH-2)))/(10**(this.MAX_LENGTH-2))) + "e" + this.currentNumberAbs.substring(this.currentNumberAbs.indexOf("e")+1);
-          }
-      } else 
-      // 小数点あり
-      if(this.currentNumberAbs.includes(".")){
-        console.log(this.currentNumberAbs.indexOf(".")," .");
-          this.currentNumberAbs = String((Math.round(Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+2)) * (10**((this.MAX_LENGTH)-this.currentNumberAbs.indexOf("."))))) / (10**((this.MAX_LENGTH)-this.currentNumberAbs.indexOf("."))));
-          // 1000000000000の時　1.0e+12に書き換え　MAX_LENGTHを変更したら変更
-          if(this.currentNumberAbs == String(10**this.MAX_LENGTH)){this.currentNumberAbs = "1.0e+" + this.MAX_LENGTH ;} 
-      } else {
-      // MAX_LENGTH+1 桁以上
-          this.currentNumberAbs = String(Math.round(Number(this.currentNumberAbs.substring(0,this.MAX_LENGTH+1))/10)/(10**(this.MAX_LENGTH-1))) + "e+" + String(this.currentNumberAbs.length-1);
-      }
-    
-      if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) == -1){ // サブスクリーンに数値がある時　かつ　負の数
-        this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + "-" + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
-      } else
-      if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) !== -1){ // サブスクリーンに数値がある時　かつ　正の数
-        this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
-      } else
-      if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数
-        this.currentNumber =  "-" +  this.currentNumberAbs;
-      } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
+    // 定義不可能でない
+    if(this.undifined(this.currentNumber) == 0){
+    } else
+    // ~ e- の時
+    if(this.currentNumberAbs.includes("e-")){
+        // ~ e- の　~ を抽出
+        const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e-"));
+
+        // 整数部分がzahlenMaxLength 桁以上
+        if(a.length > this.zahlenMaxLength + 1){
+          // ~ を整数に変換
+          const b = a.slice(0,this.zahlenMaxLength + 2);
+          const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
+          const d = Number(c.slice(0,1) + "." + c.slice(1));
+          this.currentNumberAbs = String(d) + "e-" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e-")+2);
+  
+          console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
+        } 
+    } else
+    // ~ e+ の時
+    if(this.currentNumberAbs.includes("e+")){
+
+      // ~ e+ の　~ を抽出
+      const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e+"));
+
+      // 整数部分がzahlenMaxLength 桁以上
+      if(a.length > this.zahlenMaxLength + 1){
+        // ~ を整数に変換
+        const b = a.slice(0,this.zahlenMaxLength + 2);
+        const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
+        const d = Number(c.slice(0,1) + "." + c.slice(1));
+        this.currentNumberAbs = String(d) + "e+" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e+")+2);
+
+        console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
+      } 
+    } else
+    // 整数のみ
+    if(this.currentNumberAbs.includes(".") == false){
+
+      console.log(this.currentNumberAbs.length,this.zahlenMaxLength);
       
+      // zahlenMaxLength 桁以上なら e+
+      if(this.currentNumberAbs.length > this.zahlenMaxLength){
+        const a = this.currentNumberAbs.slice(0,this.zahlenMaxLength+1);
+        const b = String(Math.round(Number(a)/10));
+        const c = Number(b.slice(0,1) + "." + b.slice(1));
+        this.currentNumberAbs = String(c) + "e+" + String(this.currentNumberAbs.length-1);
+      } 
+    } else
+    // 小数点あり
+    if(this.currentNumberAbs.includes(".")){
+      
+      console.log(this.currentNumberAbs.indexOf(".")," .");
+
+      // 小数点抜き出し
+      const a = this.currentNumberAbs.slice(this.currentNumberAbs.indexOf(".") + 1)
+      //  整数抜き出し
+      const z = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("."))
+
+      // zahlenMaxLength 桁以上なら e+
+      if(z.length > this.zahlenMaxLength){
+        const za = z.slice(0,this.zahlenMaxLength+1);
+        const zb = String(Math.round(Number(za)/10));
+        const zc = Number(zb.slice(0,1) + "." + zb.slice(1));
+        this.currentNumberAbs = String(zc) + "e+" + String(z.length-1);
+      } else
+      // 小数点がdecimalMaxLength 桁以上
+      if(a.length > this.decimalMaxLength){
+        const b = a.slice(this.decimalMaxLength - 1,this.decimalMaxLength + 1);
+        const c = Math.round(Number(b)/10);
+        console.log(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1),a.slice(0,this.decimalMaxLength - 1),a,b,c);
+        if(c == 10){
+          const d = Number(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + "9");
+          this.currentNumberAbs = String(d + 10**(-this.decimalMaxLength));
+          console.log(d,"d");
+        } else {
+          this.currentNumberAbs = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + c;
+        }
+      }
     }
     
+    if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) == -1){ // サブスクリーンに数値がある時　かつ　負の数
+      this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + "-" + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
+    } else      
+    if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) !== -1){ // サブスクリーンに数値がある時　かつ　正の数 
+      this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
+    } else      
+    if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数        
+      this.currentNumber =  "-" +  this.currentNumberAbs;  
+    } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
+
     console.log(this.operator,"operator");
     this.memoryNumberKeyOn = false; // メモリーキーオフ
   }
@@ -569,6 +731,7 @@ export class AppComponent implements OnInit {
   public clear(){
     // 数値クリア
     this.currentNumber = '0';
+    this.currentRealNumber = 0;
     // スクリーンクリア
     this.screenText = null;
     // オペランドクリア
@@ -585,6 +748,7 @@ export class AppComponent implements OnInit {
     this.operatorKeyOn = false;
     this.equalKeyOn = false;
     this.isFormDisabled = false;
+    
   }
 
   // 数値のみクリア
@@ -624,6 +788,9 @@ export class AppComponent implements OnInit {
     if(this.screenText.includes("null")){   // nullが表示されてしまう場合
       this.screenText = "";
     }
+
+    // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
 
      // フラグオフ
      this.memoryNumberKeyOn = false;
@@ -668,33 +835,33 @@ export class AppComponent implements OnInit {
         this.screenText = this.screenText?.slice(0, -1);
       }
 
-      if(this.currentNumber == "" || this.currentNumber == "-"){this.currentNumber = "0"}
+      // 実数値を置き換え
+      this.currentRealNumber = Number(this.currentNumber);
     }
 
   public undifined(currentNumber: string){
-    if(currentNumber == "NaN" || currentNumber == '0で割ることはできません' || currentNumber =='無効な入力です'){
+    if(currentNumber == "NaN" || currentNumber == '0で割ることはできません' || currentNumber =='無効な入力です' || currentNumber == 'オーバーフロー'){
       return 0;
     } else {
       return 1;
     }
   }
   
-  public setSecondOperand(text: string,op: string){
-    // セカンドオペランドで場合分け
+  public setSecondOperand(text: string,op: string){   // セカンドオペランドで場合分け
     const secondOperandText = text.slice(text.indexOf(" " + op + " ")+3,text.indexOf("=")-1) 
-    // セカンドオペランドが　1/x 
-    if(secondOperandText.includes('1/')){
+    if(secondOperandText.includes("negate")){ // negate を分解
+      secondOperandText.replace("negate","-");
+      console.log(secondOperandText,"secondOperandText");
+    }
+    if(secondOperandText.includes('1/')){       // セカンドオペランドが　1/x 
       return 1 / Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
     } else
-    // セカンドオペランドが　x²
-    if(secondOperandText.includes('²')){
+    if(secondOperandText.includes('²')){      // セカンドオペランドが　x²
       return Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")))**2 ;
     } else 
-    // セカンドオペランドが　√x
-    if(secondOperandText.includes("√")){ 
+    if(secondOperandText.includes("√")){  // セカンドオペランドが　√x
       return Math.sqrt(Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")"))));
-    } else {
-    // セカンドオペランドが　数値
+    } else {// セカンドオペランドが　数値
       return Number(secondOperandText);
     }
   }
