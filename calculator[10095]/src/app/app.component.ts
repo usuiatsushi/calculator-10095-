@@ -569,12 +569,15 @@ export class AppComponent implements OnInit {
       break;
     }
     
-    console.log(this.answerBigint);
+    console.log("aaa",this.answerBigint,String(this.answerBigint).length,this.decimalLength);
     
 
     if(this.decimalLength !== 0){
-      if(!String(this.answerBigint).slice(0,(-1*this.decimalLength)) == true){
-        this.answer = "0." + String(this.answerBigint).slice(-1*this.decimalLength)
+      if(String(this.answerBigint).length < this.decimalLength){
+        this.answer = "0." + "0".repeat(this.decimalLength-String(this.answerBigint).length) + String(this.answerBigint);
+      } else
+      if(String(this.answerBigint).length == this.decimalLength){
+        this.answer = "0." + String(this.answerBigint);
       } else {
         this.answer = String(this.answerBigint).slice(0,(-1*this.decimalLength)) + "." + String(this.answerBigint).slice(-1*this.decimalLength)
       }
