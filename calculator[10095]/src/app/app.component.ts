@@ -1,4 +1,5 @@
 import { Component,OnInit } from '@angular/core';
+import { A } from '@angular/core/weak_ref.d-Bp6cSy-X';
 import { RouterOutlet } from '@angular/router';
 
 
@@ -22,12 +23,19 @@ export class AppComponent implements OnInit {
 
   currentNumber: string = '0';    // スクリーン
     currentNumberAbs: string = "0";  //  スクリーンの絶対値
-    currentRealNumber: number = 0;  // スクリーンの実数値
+    currentRealNumber: any = 0;  // スクリーンの実数値
+    currentRealBigint: BigInt = 0n; // スクリーンの実数値 bigint
+  
+  decimalLength: number = 0;
+  decimalAdjust: number = 0;
+  answer: string = "";
+  answerBigint: bigint = 0n;
+  answerNumber: any = 0;
 
   screenText:string = '';   // サブスクリーン
 
-  firstOperand: number = null;  // ファーストオペランド: Number
-  secondOperand: number = null;   // セカンドオペランド: Number
+  firstOperand: any = null;  // ファーストオペランド: Number
+  secondOperand: any = null;   // セカンドオペランド: Number
   secondOperandString: String = "";   // セカンドオペランド:　String
 
   operator: string = '';  // オペレーター
@@ -38,7 +46,7 @@ export class AppComponent implements OnInit {
 
   waitForSecondNumber: boolean = false;  //　セカンドオペランド　チェック
 
-  memoryNumber:number = 0; // メモリの値
+  memoryNumber:any = 0; // メモリの値
   memoryNumberKeyOn: boolean = false; // メモリキー　チェック
   
   
@@ -234,7 +242,7 @@ export class AppComponent implements OnInit {
     if(this.screenText?.includes("=")){     // x + y = z の時 次の計算に移行
       this.currentNumber = v;
       this.screenText = "";
-      this.firstOperand = Number(v);
+      this.firstOperand = null;
       this.waitForSecondNumber = false;
     } else
     if(this.memoryNumberKeyOn == true){   // メモリーキーチェック　おそらくMRでスクリーン上に表示する設定にしているから必要
@@ -264,9 +272,6 @@ export class AppComponent implements OnInit {
     if(Number(this.currentNumber) == 0 && this.currentNumber?.includes(".") == false){
       this.currentNumber = "0";
     }
-
-    // 実数値を置き換え
-    this.currentRealNumber = Number(this.currentNumber);
 
     //　フラグオフ
     this.isFormDisabled = false;
@@ -311,6 +316,9 @@ export class AppComponent implements OnInit {
       this.currentNumber = "-" + this.currentNumberAbs;
     }
       this.currentNumber = this.currentNumberAbs ;
+
+    // 実数値を置き換え
+    this.currentRealNumber = Number(this.currentNumber);
   }
 
   getPositiveNegative(){
@@ -400,9 +408,9 @@ export class AppComponent implements OnInit {
     this.subOperatorKeyOn = false;
   }
 
-  private doCalculation(op: string , secondOp: number){
-    // 計算機能　リターンで計算結果を返す
-    switch (op){
+  private doCalculation(op: string , secondOp: any){
+     // 計算機能　リターンで計算結果を返す
+     switch (op){
       case '+':
       return this.firstOperand += secondOp;
       case '-': 
@@ -422,6 +430,65 @@ export class AppComponent implements OnInit {
       default :
       return 0;
     }
+    
+    /*
+    console.log(String(secondOp).includes("."));
+    
+
+    // 浮動小数点対策
+    if(String(secondOp).includes(".")){
+      this.decimalLength = String(secondOp).length - String(secondOp).indexOf(".") -1 ;
+      this.decimalAdjust = 10 ** this.decimalLength ;
+      this.firstOperand = this.firstOperand * this.decimalAdjust;
+      secondOp = secondOp * this.decimalAdjust ;
+    }
+    
+    console.log(this.firstOperand,secondOp);
+    
+    // 計算機能　リターンで計算結果を返す
+    switch (op){
+      case '+':
+        this.answerBigint = BigInt(this.firstOperand) + BigInt(secondOp);
+      break;
+      case '-': 
+        this.answerBigint = BigInt(this.firstOperand) - BigInt(secondOp);
+      break;
+      case '×': 
+        this.answerBigint = BigInt(this.firstOperand) * BigInt(secondOp); 
+      break;
+      case '÷': 
+        this.answerBigint = BigInt(this.firstOperand) / BigInt(secondOp); 
+      break;
+      case '=':
+        this.answerBigint = BigInt(secondOp);
+      break;
+      case '√':
+        this.answerBigint = BigInt(Math.sqrt(secondOp));
+      break;
+      case '²':
+        this.answerBigint = BigInt(secondOp) ** 2n;
+      break;
+      case '1/':
+        this.answerNumber = 1 / secondOp;
+      break;
+    }
+    
+    console.log(this.answerBigint);
+    
+
+    if(this.decimalLength !== 0){
+      this.answer = String(this.answerBigint).slice(0,(-1*this.decimalLength)) + "." + String(this.answerBigint).slice(-1*this.decimalLength)
+      this.firstOperand = this.firstOperand / this.decimalAdjust ;
+      this.decimalLength = 0;
+      this.decimalAdjust = 0;
+    } else {
+      this.answer = String(this.answerBigint);
+    }
+
+    console.log(this.answer,"this.answer",this.firstOperand,"this.firstOperand");
+    
+    return this.answer;
+    */
   }
 
   public getOperation(op: string){
@@ -431,7 +498,7 @@ export class AppComponent implements OnInit {
         this.currentNumber = this.currentNumber.slice(0,-1);
     }
     
-    console.log(this.subOperatorKeyOn,"this.subOperatorKeyOn",this.equalKeyOn, "this.equalKeyOn",this.operatorKeyOn,"operatorKeyOn",this.operator,"operator",op,"op");
+     console.log(this.subOperatorKeyOn,"this.subOperatorKeyOn",this.equalKeyOn, "this.equalKeyOn",this.operatorKeyOn,"operatorKeyOn",this.operator,"operator",op,"op");
     
     if(this.undifined(this.currentNumber) == 0){ // 定義不可能
       this.currentNumber = "0";
@@ -441,7 +508,7 @@ export class AppComponent implements OnInit {
 
     } else // 0で割ることはできません
     if(this.operator == "÷" && op == '=' && this.currentNumber == "0"){
-          this.currentNumber = '0で割ることはできません'; // font-size 変えたい
+          this.currentNumber = '0で割ることはできません'; // font-size 変えた
           this.isFormDisabled = true;
           
     } else
@@ -461,7 +528,7 @@ export class AppComponent implements OnInit {
             this.secondOperand = secondOpresult;
           }    
           console.log(this.secondOperand,"this.secondOperand");
-          const result = 1/this.currentRealNumber
+          const result = 1/this.currentRealNumber;
           this.screenText = "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
@@ -474,7 +541,7 @@ export class AppComponent implements OnInit {
           this.screenText = this.screenText + " " + "1/(" +this.currentNumber + ")" ;
           this.currentNumber = String(1/this.currentRealNumber);
       } else  {  // 数値のみ 
-          const result = 1/this.currentRealNumber
+          const result = 1/this.currentRealNumber;
           this.screenText = "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = result;
@@ -580,12 +647,14 @@ export class AppComponent implements OnInit {
                 this.secondOperand = secondOpresult;
               }    
               console.log(this.secondOperand,"this.secondOperand");
-              this.firstOperand = this.currentRealNumber;
-              this.screenText = this.currentNumber + " " + this.operator + " " + this.secondOperandString + " =";
-              const result = this.doCalculation(this.operator , Number(this.secondOperand))
-              this.currentNumber = String(result);
-              this.firstOperand = result;
-              this.waitForSecondNumber = true;
+              if(!this.secondOperand == false){
+                this.firstOperand = this.currentRealNumber;
+                this.screenText = this.currentNumber + " " + this.operator + " " + this.secondOperandString + " =";
+                const result = this.doCalculation(this.operator , Number(this.secondOperand))
+                this.currentNumber = String(result);
+                this.firstOperand = Number(result);
+                this.waitForSecondNumber = true;
+              }
           } else
           if(this.equalKeyOn == true && op !== "="){    // = 後の四則演算
             this.screenText = this.currentNumber + " " + op ;
@@ -598,14 +667,14 @@ export class AppComponent implements OnInit {
                 const result = this.doCalculation(this.operator , this.secondOperand);
                 this.screenText = this.screenText + " " + this.operator +" " + this.secondOperand + " =";
                 this.currentNumber = String(result);
-                this.firstOperand = result;
+                this.firstOperand = Number(result);
                 this.waitForSecondNumber = true;
           } else 
           if(this.subOperatorKeyOn == true && op == "=" && this.secondOperand == null){
                 const result = this.doCalculation(this.operator , this.currentRealNumber);
                 this.screenText = this.screenText + " =";
                 this.currentNumber = String(result);
-                this.firstOperand = result;
+                this.firstOperand = Number(result);
                 this.waitForSecondNumber = true;
           } else
           if(this.subOperatorKeyOn == true && op !== "="){
@@ -613,21 +682,42 @@ export class AppComponent implements OnInit {
                 this.screenText = this.screenText + " " + op;
                 this.waitForSecondNumber = true;
           } else // =　で計算
-          if(this.operator  && op == "="){  
-                const result = this.doCalculation(this.operator , this.currentRealNumber);
-                this.screenText = this.screenText + " " + this.currentNumber + " " + op;
+          if(!this.operator == false && op == "="){ 
+            console.log(this.secondOperand,"this.secondOperand");
+            // セカンドオペランドがない時
+            if(!this.secondOperand == true){
+              const result = this.doCalculation(this.operator , this.currentRealNumber);
+              this.screenText = this.screenText + " " + this.currentNumber + " " + op;
+              this.currentNumber = String(result);
+              this.firstOperand = Number(result);
+              this.waitForSecondNumber = true;
+              // セカンドオペランドを設定
+              console.log(this.secondOperand,"this.secondOperand");
+              const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
+              console.log(secondOpresult,"secondOpresult");
+              if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && this.screenText !== "" && secondOpresult !== this.secondOperand)){
+                this.secondOperandString = this.screenText.slice(this.screenText.indexOf(" " + this.operator + " ")+3,this.screenText.indexOf("=")-1);
+                this.secondOperand = secondOpresult;
+              }    
+              console.log(this.secondOperand,"this.secondOperand");
+            } else {
+              // セカンドオペランドがある時
+              this.firstOperand = this.currentRealNumber;
+                this.screenText = this.currentNumber + " " + this.operator + " " + this.secondOperandString + " =";
+                const result = this.doCalculation(this.operator , Number(this.secondOperand))
                 this.currentNumber = String(result);
-                this.firstOperand = result;
-                this.waitForSecondNumber = true;     
+                this.firstOperand = Number(result);
+                this.waitForSecondNumber = true;
+            }
           } else // その他で計算
-          if(this.operator  && op !== "="){
-                const result = this.doCalculation(this.operator , this.currentRealNumber)
+          if(!this.operator == false && op !== "="){
+              const result = this.doCalculation(this.operator , this.currentRealNumber)
                 this.screenText = result + " " + op;
                 this.currentNumber = String(result);
-                this.firstOperand = result;
+                this.firstOperand = Number(result);
                 this.waitForSecondNumber = true;
           } else // this.operator がない時
-          if(!this.operator && op !== "="){
+          if(!this.operator == true && op !== "="){
             this.firstOperand = this.currentRealNumber;
             this.screenText = this.currentNumber + " " + op;
             this.waitForSecondNumber = true;
@@ -645,7 +735,7 @@ export class AppComponent implements OnInit {
       this.currentNumber = 'オーバーフロー';
       this.isFormDisabled = true;
     }
-
+     
     // 実数値を置き換え
     this.currentRealNumber = Number(this.currentNumber);
 
