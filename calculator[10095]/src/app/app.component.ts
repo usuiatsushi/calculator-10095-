@@ -829,7 +829,7 @@ export class AppComponent implements OnInit {
     }
 
     console.log(this.currentNumber,"this.currentNumber",this.currentNumber,'this.currentNumber');
-    
+
     // 絶対値を取得
     if(Math.sign(Number(this.currentNumber)) == -1){
       this.currentNumberAbs = this.currentNumber.slice(1);
@@ -839,6 +839,73 @@ export class AppComponent implements OnInit {
     
     console.log(this.currentNumberAbs,"this.currentNumberAbs");
     
+    // 定義不可能でない
+    if(this.undifined(this.currentNumber) == 0){
+    } else
+    // ~ e- の時
+    if(this.currentNumberAbs.includes("e-")){
+        
+    } else
+    // ~ e+ の時
+    if(this.currentNumberAbs.includes("e+")){
+      this.currentNumber = 'オーバーフロー';
+      this.isFormDisabled = true;
+    } else
+    // 整数のみ
+    if(this.currentNumberAbs.includes(".") == false){
+
+      console.log(this.currentNumberAbs.length,this.zahlenMaxLength);
+      
+      // zahlenMaxLength 桁以上なら e+
+      if(this.currentNumberAbs.length > this.zahlenMaxLength){
+        this.currentNumber = 'オーバーフロー';
+        this.isFormDisabled = true;
+      }
+    } else
+    // 小数点あり
+    if(this.currentNumberAbs.includes(".")){
+      
+      console.log(this.currentNumberAbs.indexOf(".")," .");
+
+      // 小数点抜き出し
+      const a = this.currentNumberAbs.slice(this.currentNumberAbs.indexOf(".") + 1)
+      //  整数抜き出し
+      const z = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("."))
+
+      // zahlenMaxLength 桁以上なら e+
+      if(z.length > this.zahlenMaxLength){
+        this.currentNumber = 'オーバーフロー';
+        this.isFormDisabled = true;
+      } else
+      // 小数点がdecimalMaxLength 桁以上
+      if(a.length > this.decimalMaxLength){
+        const b = a.slice(this.decimalMaxLength - 1,this.decimalMaxLength + 1);
+        const c = Math.round(Number(b)/10);
+        console.log(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1),a.slice(0,this.decimalMaxLength - 1),a,b,c);
+        if(c == 10){
+          const d = Number(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + "9");
+          this.currentNumberAbs = String(d + 10**(-this.decimalMaxLength));
+          console.log(d,"d");
+        } else {
+          this.currentNumberAbs = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + c;
+        }
+      }
+    }
+    
+    if(this.currentNumber == 'オーバーフロー'){
+
+    } else
+    if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) == -1){ // サブスクリーンに数値がある時　かつ　負の数
+      this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + "-" + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
+    } else      
+    if(this.screenText.includes(this.currentNumber) && Math.sign(Number(this.currentNumber)) !== -1){ // サブスクリーンに数値がある時　かつ　正の数 
+      this.screenText.slice(0,this.screenText.indexOf(this.currentNumber)) + this.currentNumberAbs + this.screenText.slice(this.screenText.indexOf(this.currentNumber))
+    } else      
+    if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数        
+      this.currentNumber =  "-" +  this.currentNumberAbs;  
+    } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
+    
+    /*
     // 定義不可能でない
     if(this.undifined(this.currentNumber) == 0){
     } else
@@ -929,6 +996,10 @@ export class AppComponent implements OnInit {
     if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数        
       this.currentNumber =  "-" +  this.currentNumberAbs;  
     } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
+
+
+    */
+
 
     console.log(this.operator,"operator");
     this.memoryNumberKeyOn = false; // メモリーキーオフ
