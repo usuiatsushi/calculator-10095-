@@ -1,7 +1,8 @@
 import { NumberSymbol } from '@angular/common';
-import { Component,OnInit } from '@angular/core';
-import { A } from '@angular/core/weak_ref.d-Bp6cSy-X';
+import { Component,numberAttribute,OnInit } from '@angular/core';
+import { A, x } from '@angular/core/weak_ref.d-Bp6cSy-X';
 import { RouterOutlet } from '@angular/router';
+import { count, first } from 'rxjs';
 
 
 @Component({
@@ -21,20 +22,22 @@ export class AppComponent implements OnInit {
 
   isFormDisabled = false;    // オペレーターなどを有効
   isMemoryDisabled = true;    //  MR,MC を無効
+  isEqualDisabled = false;   //  = を無効
 
   currentNumber: string = '0';    // スクリーン
     currentNumberAbs: string = "0";  //  スクリーンの絶対値
   
   decimalLength: number = 0;
-  decimalAdjust: number = 0;
+    decimalLengthFirst: number = 0;
+    decimalLengthSecond: number = 0;
   answer: string = "";
   answerBigint: bigint = 0n;
   answerNumber: any = 0;
 
   screenText:string = '';   // サブスクリーン
 
-  firstOperand: string = null;  // ファーストオペランド: Number
-  secondOperand: string = null;   // セカンドオペランド: Number
+  firstOperand: string = null;  // ファーストオペランド
+  secondOperand: string = null;   // セカンドオペランド
   secondOperandString: String = "";   // セカンドオペランド:　String
 
   operator: string = '';  // オペレーター
@@ -57,14 +60,18 @@ export class AppComponent implements OnInit {
   //メモリ機能
   
   public memoryOperation(op:string){
-    /*
+    
     switch (op){
-        case 'M+':  //M+
+        case 'M+':
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {  //計算
-          this.memoryNumber = this.memoryNumber + this.currentNumber;
+          this.firstOperand = this.memoryNumber;
+          const result = this.doCalculation("+",this.currentNumber)
+          this.memoryNumber = result;
         }
+        
+        /*
         if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
           console.log(this.secondOperand,"this.secondOperand");
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
@@ -77,15 +84,21 @@ export class AppComponent implements OnInit {
           this.screenText = "";
         }
         console.log(this.memoryNumber,"this.memoryNumber",this.secondOperand,"this.secondOperand")
+        
+        */
+        console.log(this.memoryNumber);
         this.memoryNumberKeyOn = true;  // メモリーキーチェック
         this.isMemoryDisabled = false;
         break;
-      case 'M-':    //M-
+      case 'M-':
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {    //計算
-          this.memoryNumber = this.memoryNumber - Number(this.currentNumber);
+          this.firstOperand = this.memoryNumber;
+          const result = this.doCalculation("-",this.currentNumber)
+          this.memoryNumber = result;
         }
+        /*
         if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
           console.log(this.secondOperand,"this.secondOperand");
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
@@ -97,13 +110,16 @@ export class AppComponent implements OnInit {
           console.log(this.secondOperand,"this.secondOperand");
           this.screenText = "";
         }
-        console.log(this.memoryNumber)
+          */
+        console.log(this.memoryNumber);
         this.memoryNumberKeyOn = true;  // メモリーキーチェック
         this.isMemoryDisabled = false;
-        break;
-      case 'MR': //MR
-        this.currentNumber = String(this.memoryNumber); // 結果を表示
 
+        break;
+      case 'MR':
+        this.currentNumber = this.memoryNumber; // 結果を表示
+      
+      /*
         // セカンドオペランドを設定
         // x + y = z の時 次の計算に移行 + y を保存する
         if(this.equalKeyOn == true && this.operator !== ""){  
@@ -203,7 +219,9 @@ export class AppComponent implements OnInit {
           this.currentNumber =  "-" +  this.currentNumberAbs;  
         } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
       
-        
+      
+      */
+
         // フラグオフ
         this.waitForSecondNumber = false;
         this.memoryNumberKeyOn = true;  // メモリーキーチェック
@@ -211,6 +229,7 @@ export class AppComponent implements OnInit {
         break;
         
       case 'MC':
+      /*
         // x + y = z の時 次の計算に移行 + y を保存する
         if(this.equalKeyOn == true && this.operator !== ""){  
           console.log(this.secondOperand,"this.secondOperand");
@@ -223,11 +242,12 @@ export class AppComponent implements OnInit {
           console.log(this.secondOperand,"this.secondOperand");
           this.screenText = "";
         }
-        this.memoryNumber = 0;   //メモリークリア
+      */
+        this.memoryNumber = "0";   //メモリークリア
         this.isMemoryDisabled = true;   // MR,MC をDisable
         break;
     }
-    */
+    
 
   }
 
@@ -400,51 +420,146 @@ export class AppComponent implements OnInit {
     this.subOperatorKeyOn = false;
   }
 
-  private doCalculation(op: string , secondOp: string){
-    
-    
-    console.log(String(secondOp).includes("."));
-    
-
+  /*
+  public countermeasure (secondOp: string){
     // 浮動小数点対策
-    if(this.firstOperand.includes(".")){
+    if(this.firstOperand.includes(".") == true && secondOp.includes(".") == true){
+      this.decimalLengthFirst = this.firstOperand.length - this.firstOperand.indexOf(".") -1 ;
+      this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
+      if(this.decimalLengthFirst >= this.decimalLengthSecond){this.decimalLength = this.decimalLengthFirst} else {this.decimalLength = this.decimalLengthSecond}
+      this.firstOperand = this.firstOperand.slice(0,this.firstOperand.indexOf(".")) + this.firstOperand.slice(this.firstOperand.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthFirst);
+      secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthSecond);
+    } else
+    if(this.firstOperand.includes(".") == true){
       this.decimalLength = this.firstOperand.length - this.firstOperand.indexOf(".") -1 ;
       this.firstOperand = this.firstOperand.slice(0,this.firstOperand.indexOf(".")) + this.firstOperand.slice(this.firstOperand.indexOf(".") + 1);
       secondOp = secondOp + "0".repeat(this.decimalLength);
     } else
-    if(secondOp.includes(".")){
+    if(secondOp.includes(".") == true){
       this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
       secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
       this.firstOperand = this.firstOperand + "0".repeat(this.decimalLength);
     }
-    
-    console.log(this.firstOperand,secondOp);
+  }
+  */
+
+
+  public doCalculation(op: string , secondOp: string){
+
+    console.log("xx",this.firstOperand,secondOp);
+    let firstOp = this.firstOperand;
     
     // 計算機能　リターンで計算結果を返す
     switch (op){
       case '+':
-        this.answerBigint = BigInt(this.firstOperand) + BigInt(secondOp);
+        // 浮動小数点対策
+        if(firstOp.includes(".") == true && secondOp.includes(".") == true){
+          this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
+          this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
+          if(this.decimalLengthFirst >= this.decimalLengthSecond){this.decimalLength = this.decimalLengthFirst} else {this.decimalLength = this.decimalLengthSecond}
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthFirst);
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthSecond);
+        } else
+        if(firstOp.includes(".") == true){
+          this.decimalLength = firstOp.length - firstOp.indexOf(".") -1 ;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1);
+          secondOp = secondOp + "0".repeat(this.decimalLength);
+        } else
+        if(secondOp.includes(".") == true){
+          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+          firstOp = firstOp + "0".repeat(this.decimalLength);
+        }
+
+        this.answerBigint = BigInt(firstOp) + BigInt(secondOp);
+
       break;
       case '-': 
-        this.answerBigint = BigInt(this.firstOperand) - BigInt(secondOp);
+        // 浮動小数点対策
+        if(firstOp.includes(".") == true && secondOp.includes(".") == true){
+          this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
+          this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
+          if(this.decimalLengthFirst >= this.decimalLengthSecond){this.decimalLength = this.decimalLengthFirst} else {this.decimalLength = this.decimalLengthSecond}
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthFirst);
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1) + "0".repeat(this.decimalLength - this.decimalLengthSecond);
+        } else
+        if(firstOp.includes(".") == true){
+          this.decimalLength = firstOp.length - firstOp.indexOf(".") -1 ;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1);
+          secondOp = secondOp + "0".repeat(this.decimalLength);
+        } else
+        if(secondOp.includes(".") == true){
+          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+          firstOp = firstOp + "0".repeat(this.decimalLength);
+        }
+
+        this.answerBigint = BigInt(firstOp) - BigInt(secondOp);
+
       break;
-      case '×': 
-        this.answerBigint = BigInt(this.firstOperand) * BigInt(secondOp); 
+      case '×':
+        // 浮動小数点対策
+        if(firstOp.includes(".") == true && secondOp.includes(".") == true){
+          this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
+          this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
+          this.decimalLength = this.decimalLengthFirst + this.decimalLengthSecond;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1);
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+        } else
+        if(firstOp.includes(".") == true){
+          this.decimalLength = firstOp.length - firstOp.indexOf(".") -1 ;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1);
+        } else
+        if(secondOp.includes(".") == true){
+          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+        }
+        console.log(this.decimalLength);
+        
+        this.answerBigint = BigInt(firstOp) * BigInt(secondOp); 
       break;
+
       case '÷': 
-        this.answerBigint = BigInt(this.firstOperand) / BigInt(secondOp); 
+        // 浮動小数点対策
+        let firstOpLength = firstOp.length;
+        if(firstOp.includes(".") == true && secondOp.includes(".") == true){
+          this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
+          this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
+          this.decimalLength = this.decimalLengthFirst - this.decimalLengthSecond;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat((18-firstOpLength));
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+        } else
+        if(firstOp.includes(".") == true){
+          this.decimalLength = firstOp.length - firstOp.indexOf(".") -1 ;
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat((18-firstOpLength));
+        } else
+        if(secondOp.includes(".") == true){
+          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+          firstOp = firstOp + "0".repeat((18-firstOpLength));
+        }
+        this.decimalLength = this.decimalLength + (18-firstOpLength);
+        console.log("rr",firstOp,secondOp,this.decimalLength,(18-firstOpLength));
+
+        this.answerBigint = BigInt(firstOp) / BigInt(secondOp); 
       break;
       case '=':
-        this.answerBigint = BigInt(secondOp);
       break;
       case '√':
-        this.answerBigint = 1n;
+        return String( Math.round(Number(secondOp)) );
       break;
       case '²':
+        // 浮動小数点対策
+        if(secondOp.includes(".") == true){
+          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1)
+        }
+        this.decimalLength = this.decimalLength * 2 ;
+
         this.answerBigint = BigInt(secondOp) ** 2n;
       break;
       case '1/':
-        this.answerNumber = 1;
+        return String( 1/ Number(secondOp) ) ;
       break;
     }
     
@@ -452,9 +567,12 @@ export class AppComponent implements OnInit {
     
 
     if(this.decimalLength !== 0){
-      this.answer = String(this.answerBigint).slice(0,(-1*this.decimalLength)) + "." + String(this.answerBigint).slice(-1*this.decimalLength)
+      if(!String(this.answerBigint).slice(0,(-1*this.decimalLength)) == true){
+        this.answer = "0." + String(this.answerBigint).slice(-1*this.decimalLength)
+      } else {
+        this.answer = String(this.answerBigint).slice(0,(-1*this.decimalLength)) + "." + String(this.answerBigint).slice(-1*this.decimalLength)
+      }
       this.decimalLength = 0;
-      this.decimalAdjust = 0;
     } else {
       this.answer = String(this.answerBigint);
     }
@@ -953,10 +1071,42 @@ export class AppComponent implements OnInit {
       return Number(secondOperandText);
     }
   }
+  
+  number: number | null = null;
+  result: number | null = null;
+  error: string = '';
+  tolerance: number = 0.00001; // 許容誤差
+  maxIterations: number = 100; // 最大イテレーション数
+
+  calculateSqrt() {
+    if (this.number === null || this.number < 0) {
+      this.error = '0以上の数値を入力してください。';
+      this.result = null;
+      return;
+    }
+
+    this.error = '';
+    let guess = this.number / 2; // 初期推測値
+    let i = 0;
+
+    while (Math.abs(guess * guess - this.number) > this.tolerance && i < this.maxIterations) {
+      guess = 0.5 * (guess + this.number / guess);
+      i++;
+    }
+
+    if (i === this.maxIterations && Math.abs(guess * guess - this.number) > this.tolerance) {
+      this.error = '指定されたイテレーション数内で収束しませんでした。';
+      this.result = null;
+    } else {
+      this.result = guess;
+    }
+  }
 
   ngOnInit(): void {
     
   }  
+
 }
+
 
 
