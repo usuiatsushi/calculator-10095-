@@ -1,8 +1,5 @@
-import { NumberSymbol } from '@angular/common';
-import { Component,numberAttribute,OnInit } from '@angular/core';
-import { A, x } from '@angular/core/weak_ref.d-Bp6cSy-X';
+import { Component,OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { count, first } from 'rxjs';
 
 
 @Component({
@@ -48,7 +45,7 @@ export class AppComponent implements OnInit {
 
   waitForSecondNumber: boolean = false;  //　セカンドオペランド　チェック
 
-  memoryNumber:string = "0"; // メモリの値
+  memoryNumber:string = null; // メモリの値
   memoryNumberKeyOn: boolean = false; // メモリキー　チェック
   
   
@@ -66,7 +63,12 @@ export class AppComponent implements OnInit {
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {  //計算
-          this.firstOperand = this.memoryNumber;
+          if(!this.memoryNumber == true){
+            this.firstOperand = "0";
+          } else {
+            this.firstOperand = this.memoryNumber;
+          }
+
           const result = this.doCalculation("+",this.currentNumber)
           this.memoryNumber = result;
         }
@@ -94,7 +96,11 @@ export class AppComponent implements OnInit {
         if(this.undifined(this.currentNumber) == 0){   // 定義不可能
           this.currentNumber = "0"; this.screenText = "";
         } else {    //計算
-          this.firstOperand = this.memoryNumber;
+          if(!this.memoryNumber == true){
+            this.firstOperand = "0";
+          } else {
+            this.firstOperand = this.memoryNumber;
+          }
           const result = this.doCalculation("-",this.currentNumber)
           this.memoryNumber = result;
         }
@@ -118,7 +124,6 @@ export class AppComponent implements OnInit {
         break;
       case 'MR':
         this.currentNumber = this.memoryNumber; // 結果を表示
-      
       /*
         // セカンドオペランドを設定
         // x + y = z の時 次の計算に移行 + y を保存する
@@ -243,7 +248,7 @@ export class AppComponent implements OnInit {
           this.screenText = "";
         }
       */
-        this.memoryNumber = "0";   //メモリークリア
+        this.memoryNumber = null;   //メモリークリア
         this.isMemoryDisabled = true;   // MR,MC をDisable
         break;
     }
@@ -295,6 +300,7 @@ export class AppComponent implements OnInit {
     }
 
     //　フラグオフ
+    if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
     this.isFormDisabled = false;
     this.memoryNumberKeyOn = false;
     this.operatorKeyOn = false;
@@ -597,11 +603,14 @@ export class AppComponent implements OnInit {
       this.firstOperand = null;
       this.screenText = ""; 
       this.isFormDisabled = false;
+      if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
 
     } else // 0で割ることはできません
     if(this.operator == "÷" && op == '=' && this.currentNumber == "0"){
           this.currentNumber = '0で割ることはできません'; // font-size 変えた
           this.isFormDisabled = true;
+          this.isMemoryDisabled = true;
+
           
     } else
     // サブオペレーター
@@ -609,7 +618,8 @@ export class AppComponent implements OnInit {
       if(this.currentNumber == "0"){
           this.currentNumber = '0で割ることはできません'; // font-size 変えたい
             if(this.screenText == null){this.screenText = '1/(0)';} else {this.screenText += '1/(0)';}
-          this.isFormDisabled = true;     
+          this.isFormDisabled = true;
+          this.isMemoryDisabled = true; 
       } else
       if(this.equalKeyOn){
           console.log(this.secondOperand,"this.secondOperand");
@@ -684,7 +694,8 @@ export class AppComponent implements OnInit {
       if(Math.sign(Number(this.currentNumber)) == -1){ // 負の数を√　（虚数）
           if(this.screenText == null){this.screenText = '√(' + this.currentNumber + ')';} else {this.screenText += '√(' + this.currentNumber + ')';}
             this.currentNumber = '無効な入力です'; // font-size 変えたい
-            this.isFormDisabled = true;     
+            this.isFormDisabled = true;
+            this.isMemoryDisabled = true;   
       } else
       if(this.equalKeyOn == true){    // ＝の後
           console.log(this.secondOperand,"this.secondOperand");
@@ -826,6 +837,7 @@ export class AppComponent implements OnInit {
     if(this.currentNumber == 'Infinity'){
       this.currentNumber = 'オーバーフロー';
       this.isFormDisabled = true;
+      this.isMemoryDisabled = true;
     }
 
     console.log(this.currentNumber,"this.currentNumber",this.currentNumber,'this.currentNumber');
@@ -850,6 +862,7 @@ export class AppComponent implements OnInit {
     if(this.currentNumberAbs.includes("e+")){
       this.currentNumber = 'オーバーフロー';
       this.isFormDisabled = true;
+      this.isMemoryDisabled = true;
     } else
     // 整数のみ
     if(this.currentNumberAbs.includes(".") == false){
@@ -860,6 +873,7 @@ export class AppComponent implements OnInit {
       if(this.currentNumberAbs.length > this.zahlenMaxLength){
         this.currentNumber = 'オーバーフロー';
         this.isFormDisabled = true;
+        this.isMemoryDisabled = true;
       }
     } else
     // 小数点あり
@@ -876,6 +890,7 @@ export class AppComponent implements OnInit {
       if(z.length > this.zahlenMaxLength){
         this.currentNumber = 'オーバーフロー';
         this.isFormDisabled = true;
+        this.isMemoryDisabled = true;
       } else
       // 小数点がdecimalMaxLength 桁以上
       if(a.length > this.decimalMaxLength){
@@ -1025,6 +1040,7 @@ export class AppComponent implements OnInit {
     this.operatorKeyOn = false;
     this.equalKeyOn = false;
     this.isFormDisabled = false;
+    if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
     
   }
 
@@ -1072,12 +1088,14 @@ export class AppComponent implements OnInit {
      this.subOperatorKeyOn = false;
      this.operatorKeyOn = false;
      this.isFormDisabled = false;
+     if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
   }
 
   // 一文字消去
   public Delete(){
       // フラグオフ
       this.isFormDisabled = false;
+      if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
 
       if(this.undifined(this.currentNumber) == 0){  // 定義不可能
       this.currentNumber = "0"; this.screenText = "";}
