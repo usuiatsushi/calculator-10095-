@@ -136,85 +136,106 @@ export class AppComponent implements OnInit {
           this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
         }
 
-          
-        // 絶対値を求める
+        
+        // Infinity をオーバーフローに
+        if(this.currentNumber == 'Infinity'){
+          this.currentNumber = '値が大きすぎます';
+          this.isFormDisabled = true;
+          this.isMemoryDisabled = true;
+        }
+
+        // 絶対値を取得
         if(Math.sign(Number(this.currentNumber)) == -1){
           this.currentNumberAbs = this.currentNumber.slice(1);
         } else{
           this.currentNumberAbs = this.currentNumber;
         }
         
+        console.log(this.currentNumberAbs,"this.currentNumberAbs");
+        
+        // ~ e- の時 小数に直す
+        if(this.currentNumberAbs.includes("e-")){
+          const alpha = Number( this.currentNumberAbs.slice(this.currentNumberAbs.indexOf('e-') +2));
+          let beta = null;
+          if(this.currentNumberAbs.includes(".")){
+            beta = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf('.')) + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf('.') +1,this.currentNumberAbs.indexOf('e-'))
+          } else {
+            beta = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf('e-'))
+          }
+          this.currentNumberAbs = "0." + "0".repeat(alpha) + beta;
+          console.log(this.currentNumberAbs,"syousu");
+          
+        } 
         // 定義不可能でない
         if(this.undifined(this.currentNumber) == 0){
         } else
-          // ~ e- の時
-        if(this.currentNumberAbs.includes("e-")){
-           // ~ e- の　~ を抽出
-          const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e-"));
-
-            // 整数部分がzahlenMaxLength 桁以上
-            if(a.length > this.zahlenMaxLength + 1){
-              // ~ を整数に変換
-              const b = a.slice(0,this.zahlenMaxLength + 2);
-              const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
-              const d = Number(c.slice(0,1) + "." + c.slice(1));
-              this.currentNumberAbs = String(d) + "e-" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e-")+2);
-
-              console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
-            } 
-        } else
         // ~ e+ の時
         if(this.currentNumberAbs.includes("e+")){
-
-          // ~ e+ の　~ を抽出
-          const a = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("e+"));
-
-          // 整数部分がzahlenMaxLength 桁以上
-          if(a.length > this.zahlenMaxLength + 1){
-            // ~ を整数に変換
-            const b = a.slice(0,this.zahlenMaxLength + 2);
-            const c = String(Math.round(Number(b)*(10**(this.zahlenMaxLength-1))));
-            const d = Number(c.slice(0,1) + "." + c.slice(1));
-            this.currentNumberAbs = String(d) + "e+" + this.currentNumberAbs.slice(this.currentNumberAbs.indexOf("e+")+2);
-
-            console.log(b,"b",c,"c",this.currentNumberAbs,"this.currentNumberAbs");
-          } 
+          this.currentNumber = '値が大きすぎます';
+          this.isFormDisabled = true;
+          this.isMemoryDisabled = true;
         } else
         // 整数のみ
         if(this.currentNumberAbs.includes(".") == false){
-
-        console.log(this.currentNumberAbs.length,this.zahlenMaxLength);
-      
+          
           // zahlenMaxLength 桁以上なら e+
           if(this.currentNumberAbs.length > this.zahlenMaxLength){
-            const a = this.currentNumberAbs.slice(0,this.zahlenMaxLength+1);
-            const b = String(Math.round(Number(a)/10));
-            const c = Number(b.slice(0,1) + "." + b.slice(1));
-            this.currentNumberAbs = String(c) + "e+" + String(this.currentNumberAbs.length-1);
-          } 
+            this.currentNumber = '値が大きすぎます';
+            this.isFormDisabled = true;
+            this.isMemoryDisabled = true;
+          }
         } else
         // 小数点あり
         if(this.currentNumberAbs.includes(".")){
           
+          console.log(this.currentNumberAbs.indexOf(".")," .");
+
+          // 小数点抜き出し
           const a = this.currentNumberAbs.slice(this.currentNumberAbs.indexOf(".") + 1)
+          //  整数抜き出し
+          const z = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf("."))
+
+          // zahlenMaxLength 桁以上なら e+
+          if(z.length > this.zahlenMaxLength){
+            this.currentNumber = '値が大きすぎます';
+            this.isFormDisabled = true;
+            this.isMemoryDisabled = true;
+          } else
+          // 小数点がdecimalMaxLength 桁以上
           if(a.length > this.decimalMaxLength){
             const b = a.slice(this.decimalMaxLength - 1,this.decimalMaxLength + 1);
             const c = Math.round(Number(b)/10);
+            console.log(a.slice(0,this.decimalMaxLength - 1),a,b,c);
             if(c == 10){
-              const d = Number(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + "9");
-              this.currentNumberAbs = String(d + 10**(-this.decimalMaxLength));
+              const d = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + "9";
+              this.currentNumberAbs = this.doCalculation(d,"+","0." + "0".repeat(this.decimalMaxLength-1) + "1" );
               console.log(d,"d");
-            console.log(this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1),a.slice(0,this.decimalMaxLength - 1),a,b,c);
             } else {
               this.currentNumberAbs = this.currentNumberAbs.slice(0,this.currentNumberAbs.indexOf(".") + 1) + a.slice(0,this.decimalMaxLength - 1) + c;
             }
           }
         }
-     
+
+        // 0.00000000 はエラー
+        if(this.currentNumberAbs == "0.00000000"){
+          this.currentNumber = '値が小さすぎます';
+          this.isFormDisabled = true;
+          this.isMemoryDisabled = true;
+        }
+
+        // 小数点　4.00000000 を　4 に
+        this.currentNumberAbs = this.currentNumberAbs.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+
+        
+        if(this.currentNumber == '値が大きすぎます' || this.currentNumber == '値が小さすぎます' ){
+          this.memoryNumber = null;
+          this.isMemoryDisabled = true;
+        } else      
         if(Math.sign(Number(this.currentNumber)) == -1){  // 負の数        
           this.currentNumber =  "-" +  this.currentNumberAbs;  
         } else { this.currentNumber = this.currentNumberAbs;}   // 正の数
-      
+        
+            
 
         // フラグオフ
         this.waitForSecondNumber = false;
@@ -349,13 +370,13 @@ export class AppComponent implements OnInit {
       if(this.screenText == ""){  //サブスクリーンなし
       } else
       if(this.screenText?.slice(-1) == "="){ // x + y = z の時
-        this.screenText = "negate(" + A + ")";
+        this.screenText = "negate( " + A + ")";
       } else
       if(this.screenText?.slice(-1) == this.operator && this.operatorKeyOn){ // x + の次に押したとき
         this.screenText = this.screenText + " negate(" + A + ")";
       } else
       if(this.subOperatorKeyOn == true && this.operator !== ""){  // x + √(y) の時
-        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator + " " ) + 3) + "negate(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator + " " ) + 2) + ")";
+        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator + " " ) + 3) + "negate(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator + " " ) + 3) + ")";
       } else
       if(this.screenText?.includes("negate")){ // negate() の時
         this.screenText = this.screenText?.slice(0,this.screenText.indexOf("negate")) + "negate(" + this.screenText?.slice(this.screenText.indexOf("negate")) + ")";
@@ -837,7 +858,11 @@ export class AppComponent implements OnInit {
             // セカンドオペランドがない時
             if(!this.secondOperand == true){
               const result = this.doCalculation(this.firstOperand,this.operator , this.currentReal);
-              this.screenText = this.screenText + " " + this.currentNumber + " " + op;
+              if(this.screenText.slice(-1) == this.operator){
+                this.screenText = this.screenText + " " + this.currentNumber + " " + op;
+              } else {
+                this.screenText = this.screenText + " =";
+              }
               this.currentNumber = String(result);
               this.firstOperand = String(result);
               this.waitForSecondNumber = true;
@@ -975,7 +1000,7 @@ export class AppComponent implements OnInit {
         }
       }
     }
-    
+
     // 0.00000000 はエラー
     if(this.currentNumberAbs == "0.00000000"){
       this.currentNumber = '値が小さすぎます';
@@ -1227,19 +1252,21 @@ export class AppComponent implements OnInit {
   public setSecondOperand(text: string,op: string){   // セカンドオペランドで場合分け
     let secondOperandText = text.slice(text.indexOf(" " + op + " ")+3,text.indexOf("=")-1) 
     let countA = null;
+    let countB = null;
     if(secondOperandText.includes("negate")){ // negate を分解
       countA = secondOperandText.match(/negate/g).length;
+      countB = secondOperandText.match(/\)/g).length
       const firstIndex = secondOperandText.indexOf(")");
       let secondIndex = null;
       if (firstIndex !== -1) {
         secondIndex = secondOperandText.indexOf(")", firstIndex + 1);
-        if (secondIndex !== -1) {
-          secondOperandText = secondOperandText.slice(secondOperandText.lastIndexOf("negate(")+8,secondIndex)
+        if (secondIndex !== -1 && countA !== countB) {
+          secondOperandText = secondOperandText.slice(secondOperandText.lastIndexOf("negate(")+7,secondIndex)
         } else {
-          secondOperandText.slice(secondOperandText.lastIndexOf("negate(")+8,secondOperandText.indexOf(")"))
+          secondOperandText = secondOperandText.slice(secondOperandText.lastIndexOf("negate(")+7,secondOperandText.indexOf(")"))
         }
       }
-      console.log("count",countA,"first",firstIndex,"second",secondIndex,"text",secondOperandText);
+      console.log("count",countA,countB,"first",firstIndex,"second",secondIndex,"text",secondOperandText);
     
       if(countA % 2 == 1){
         secondOperandText = "-" + secondOperandText
