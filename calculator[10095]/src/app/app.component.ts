@@ -73,7 +73,7 @@ export class AppComponent implements OnInit {
           this.memoryNumber = result;
         }
   
-        if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
+        if(this.equalKeyOn == true && !this.operator == false){  // x + y = z の時 次の計算に移行 + y を保存する
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
@@ -102,7 +102,7 @@ export class AppComponent implements OnInit {
           this.memoryNumber = result;
         }
 
-        if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
+        if(this.equalKeyOn == true && !this.operator == false){  // x + y = z の時 次の計算に移行 + y を保存する
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
@@ -122,7 +122,7 @@ export class AppComponent implements OnInit {
 
         // セカンドオペランドを設定
         // x + y = z の時 次の計算に移行 + y を保存する
-        if(this.equalKeyOn == true && this.operator !== ""){  
+        if(this.equalKeyOn == true && !this.operator == false){  
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
@@ -132,7 +132,7 @@ export class AppComponent implements OnInit {
         this.screenText = "";
         } else
         //  x + y^2 の時　y で上書き
-        if(this.subOperatorKeyOn == true && this.operator !== ""){  
+        if(this.subOperatorKeyOn == true && !this.operator == false){  
           this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
         }
 
@@ -245,7 +245,7 @@ export class AppComponent implements OnInit {
         
       case 'MC':
           // x + y = z の時 次の計算に移行 + y を保存する
-        if(this.equalKeyOn == true && this.operator !== ""){  
+        if(this.equalKeyOn == true && !this.operator == false){  
           const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
@@ -270,6 +270,7 @@ export class AppComponent implements OnInit {
 
     if(this.undifined(this.currentNumber) == 0){    // 定義不可能
       this.currentNumber = v; this.screenText = "",this.waitForSecondNumber = false;
+      this.firstOperand = null; this.secondOperand = null; this.operator = null;
     } else
     if(this.screenText?.includes("=")){     // x + y = z の時 次の計算に移行
       this.currentNumber = v;
@@ -283,11 +284,11 @@ export class AppComponent implements OnInit {
       this.memoryNumberKeyOn = false;
       this.waitForSecondNumber = false;
     } else
-    if(this.subOperatorKeyOn == true && this.operator !== ""){  //  x + y^2 の時　y で上書き
+    if(this.subOperatorKeyOn == true && !this.operator == false){  //  x + y^2 の時　y で上書き
         this.currentNumber = v;
         this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
     } else
-    if(this.waitForSecondNumber == true && this.subOperatorKeyOn == true && this.operator == ""){  //  x^2 の時　x で上書き
+    if(this.waitForSecondNumber == true && this.subOperatorKeyOn == true && !this.operator == true){  //  x^2 の時　x で上書き
       this.currentNumber = v;
       this.firstOperand = null;
       this.waitForSecondNumber = false;
@@ -355,7 +356,8 @@ export class AppComponent implements OnInit {
   getPositiveNegative(){
     
     if(this.undifined(this.currentNumber) == 0){  // 定義不可能
-      this.currentNumber = "0"; this.screenText = "";}
+      this.currentNumber = "0"; this.screenText = ""; this.firstOperand = null; this.secondOperand = null; this.operator = null;
+    }
       
       const A = this.currentNumber
 
@@ -367,7 +369,7 @@ export class AppComponent implements OnInit {
       this.currentNumber = "-" + this.currentNumber;
       }  
 
-      if(this.screenText == ""){  //サブスクリーンなし
+      if(!this.screenText == true){  //サブスクリーンなし
       } else
       if(this.screenText?.slice(-1) == "="){ // x + y = z の時
         this.screenText = "negate( " + A + ")";
@@ -375,13 +377,13 @@ export class AppComponent implements OnInit {
       if(this.screenText?.slice(-1) == this.operator && this.operatorKeyOn){ // x + の次に押したとき
         this.screenText = this.screenText + " negate(" + A + ")";
       } else
-      if(this.subOperatorKeyOn == true && this.operator !== ""){  // x + √(y) の時
+      if(this.subOperatorKeyOn == true && !this.operator == false){  // x + √(y) の時
         this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator + " " ) + 3) + "negate(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator + " " ) + 3) + ")";
       } else
       if(this.screenText?.includes("negate")){ // negate() の時
         this.screenText = this.screenText?.slice(0,this.screenText.indexOf("negate")) + "negate(" + this.screenText?.slice(this.screenText.indexOf("negate")) + ")";
       } else
-      if(this.subOperatorKeyOn == true && this.operator == ""){   // x^2 のとき
+      if(this.subOperatorKeyOn == true && !this.operator == true){   // x^2 のとき
         this.screenText = "negate(" + this.screenText + ")";
       }
 
@@ -540,28 +542,30 @@ export class AppComponent implements OnInit {
       case '÷': 
         // 浮動小数点対策
         let firstOpLength = firstOp.length;
+        let rep = 18-firstOpLength;
+        if(rep < 0){ rep = 0 }
         if(firstOp.includes(".") == true && secondOp.includes(".") == true){
           this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
           this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
           this.decimalLength = this.decimalLengthFirst - this.decimalLengthSecond;
-          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat((18-firstOpLength));
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat(rep);
           secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
         } else
         if(firstOp.includes(".") == true){
           this.decimalLength = firstOp.length - firstOp.indexOf(".") -1 ;
-          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat((18-firstOpLength));
+          firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat(rep);          
         } else
         if(secondOp.includes(".") == true){
           this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
           secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
-          firstOp = firstOp + "0".repeat((18-firstOpLength));
+          firstOp = firstOp + "0".repeat(rep);
         } else {
           this.decimalLength = 0;
-          firstOp = firstOp + "0".repeat((18-firstOpLength));
+          firstOp = firstOp + "0".repeat(rep);
         }
 
-        this.decimalLength = this.decimalLength + (18-firstOpLength);
-        console.log("rr",firstOp,secondOp,this.decimalLength,(18-firstOpLength));
+        this.decimalLength = this.decimalLength + (rep);
+        console.log("rr",firstOp,secondOp,this.decimalLength,(rep));
 
         this.answerBigint = BigInt(firstOp) / BigInt(secondOp); 
       break;
@@ -590,10 +594,10 @@ export class AppComponent implements OnInit {
 
     if(this.decimalLength !== 0){
       if(String(this.answerBigint).length < this.decimalLength){
-        this.answer = String ( Number( "0." + "0".repeat(this.decimalLength-String(this.answerBigint).length) + String(this.answerBigint) ) );
+        this.answer = String ( ( "0." + "0".repeat(this.decimalLength-String(this.answerBigint).length) + String(this.answerBigint) ) );
       } else
       if(String(this.answerBigint).length == this.decimalLength){
-        this.answer = String ( Number ( "0." + String(this.answerBigint) ) ) ;
+        this.answer = String ( ( "0." + String(this.answerBigint) ) ) ;
       } else { 
         this.answer = String(this.answerBigint).slice(0,(-1*this.decimalLength)) + "." + String(  ("0." + String(this.answerBigint).slice(-1*this.decimalLength,18) ) ).slice(2) ;
         console.log("lll",-1*this.decimalLength,this.decimalMaxLength+4, "0." + String(this.answerBigint).slice(-1*this.decimalLength,this.decimalMaxLength+4));
@@ -639,6 +643,8 @@ export class AppComponent implements OnInit {
     if(this.undifined(this.currentNumber) == 0){ // 定義不可能
       this.currentNumber = "0";
       this.firstOperand = null;
+      this.secondOperand = null;
+      this.operator = null;
       this.screenText = ""; 
       this.isFormDisabled = false;
       if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
@@ -796,12 +802,12 @@ export class AppComponent implements OnInit {
               }
             this.waitForSecondNumber = true;
           } else 
-          if(this.operator == "" && this.subOperatorKeyOn == true){  // x^2 +　の時
+          if(!this.operator == true && this.subOperatorKeyOn == true){  // x^2 +　の時
             this.firstOperand = this.currentNumber;
             this.screenText = this.screenText + " " + op;
             this.waitForSecondNumber = true;
           } else 
-          if(this.equalKeyOn == true && this.operator!== "" && op == "="){   // = 連打
+          if(this.equalKeyOn == true && !this.operator == false && op == "="){   // = 連打
             // secondOperand を設定
             const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
             if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
@@ -1156,17 +1162,17 @@ export class AppComponent implements OnInit {
 
     if(this.undifined(this.currentNumber) == 0){  // 定義不可能
       this.currentNumber = "0"; this.screenText = "";
-      this.firstOperand = null;
+      this.firstOperand = null; this.secondOperand = null; this.operator = null;
     }
 
     this.currentNumber = '0';  // 数値を0に
     this.currentReal = "0";
     console.log(this.operator,"op");
     
-    if(this.screenText == "" || this.screenText == "0"){ // サブスクリーンが0の時
+    if(!this.screenText == true || this.screenText == "0"){ // サブスクリーンが0の時
       this.screenText = "";
     } else
-    if(this.equalKeyOn == true && this.operator !== ""){  // x + y = z の時 次の計算に移行 + y を保存する
+    if(this.equalKeyOn == true && !this.operator == false){  // x + y = z の時 次の計算に移行 + y を保存する
       const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false) || (!secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
@@ -1202,7 +1208,8 @@ export class AppComponent implements OnInit {
       if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
 
       if(this.undifined(this.currentNumber) == 0){  // 定義不可能
-      this.currentNumber = "0"; this.screenText = "";}
+      this.currentNumber = "0"; this.screenText = "";this.firstOperand = null;this.secondOperand = null; this.operator = null
+      }
 
       console.log(this.operator,"this.operator",this.equalKeyOn,"e",this.operatorKeyOn,"o",this.currentNumber,"c");
 
@@ -1219,7 +1226,7 @@ export class AppComponent implements OnInit {
       if(!this.operator == false && this.screenText?.slice(-1) == this.operator){ 
         this.currentNumber = this.currentNumber.slice(0, -1);
       } else  //  a = は何もせず
-      if(this.operator == "" && this.screenText?.includes("=") == true){
+      if(!this.operator == true && this.screenText?.includes("=") == true){
       } else  // x + y = z  スクリーンのみ消去
       if(this.screenText?.includes('=') == true){ 
           this.screenText = ""
@@ -1233,7 +1240,7 @@ export class AppComponent implements OnInit {
         this.screenText = this.screenText?.slice(0, -1); 
       } 
       // currentNumber がnull なら0 に
-      if(this.currentNumber == ""){
+      if(!this.currentNumber == true){
         this.currentNumber = "0"
       }
 
