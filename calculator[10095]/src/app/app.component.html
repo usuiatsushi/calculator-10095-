@@ -86,8 +86,8 @@
  
       <!-- 上から6段目 -->
       <tr>
-        <td><input type="button" value="0" (click) = "getNumber('0')"class="number"></td>
         <td><input type="button" value="00" (click) = "getNumber('00')"class="number"></td>
+        <td><input type="button" value="0" (click) = "getNumber('0')"class="number"></td>
         <td><input type="button" value="." (click) = "getDecimal()" class="decimal"  [disabled]="isFormDisabled"></td>
         <td><input type="button" value="=" (click) = "getOperation('=')" class="equal" [disabled]="isEqualDisabled"></td>
 
