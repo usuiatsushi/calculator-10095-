@@ -551,12 +551,15 @@ export class AppComponent implements OnInit {
       break;
 
       case '÷': 
-        // 0.00000000 対策
-        if(firstOp == "0"){ secondOp = "1"}
+        
         // 浮動小数点対策
         let firstOpLength = firstOp.length;
-        let rep = 18-firstOpLength;
+        let rep = 28-firstOpLength;
         if(rep < 0){ rep = 0 }
+        // 0.00000000 対策
+        if(firstOp == "0"){ 
+          secondOp = "1"
+        } else
         if(firstOp.includes(".") == true && secondOp.includes(".") == true){
           this.decimalLengthFirst = firstOp.length - firstOp.indexOf(".") -1 ;
           this.decimalLengthSecond = secondOp.length - secondOp.indexOf(".") -1 ;
@@ -569,7 +572,7 @@ export class AppComponent implements OnInit {
           firstOp = firstOp.slice(0,firstOp.indexOf(".")) + firstOp.slice(firstOp.indexOf(".") + 1) + "0".repeat(rep);          
         } else
         if(secondOp.includes(".") == true){
-          this.decimalLength = secondOp.length - secondOp.indexOf(".") -1 ;
+          this.decimalLength = - secondOp.length + secondOp.indexOf(".") +1 ;
           secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
           firstOp = firstOp + "0".repeat(rep);
         } else {
@@ -580,7 +583,14 @@ export class AppComponent implements OnInit {
         this.decimalLength = this.decimalLength + (rep);
         console.log("rr",firstOp,secondOp,this.decimalLength,(rep));
 
-        this.answerBigint = BigInt(firstOp) / BigInt(secondOp); 
+        // 0.00000000 対策
+        if(firstOp == "0"){ 
+          this.answerBigint = 0n;
+          this.decimalLength = 0;
+        } else {
+          this.answerBigint = BigInt(firstOp) / BigInt(secondOp); 
+        }
+        
       break;
       case '=':
       break;
@@ -598,7 +608,21 @@ export class AppComponent implements OnInit {
         this.answerBigint = BigInt(secondOp) ** 2n;
       break;
       case '1/':
-        return String( 1/ Number(secondOp) ) ;
+        let repo = 28;
+         if(secondOp.includes(".") == true){
+           this.decimalLength = - secondOp.length + secondOp.indexOf(".") +1 ;
+           secondOp = secondOp.slice(0,secondOp.indexOf(".")) + secondOp.slice(secondOp.indexOf(".") + 1);
+           firstOp = "1" + "0".repeat(repo); 
+         } else {
+           this.decimalLength = 0;
+           firstOp = "1" + "0".repeat(repo); 
+         }
+ 
+         this.decimalLength = this.decimalLength + (repo);
+         console.log("rr",firstOp,secondOp,this.decimalLength,repo);
+ 
+        this.answerBigint = BigInt(firstOp) / BigInt(secondOp); 
+
       break;
     }
     
@@ -617,7 +641,27 @@ export class AppComponent implements OnInit {
         // 正の数
         signS = "";
       }
-
+      
+      // 文字列で答えを生成
+      if (answerBigintString.length < this.decimalLength) {
+        // 小数点以下の桁数を補う
+        const paddedAnswer = "0." + "0".repeat(this.decimalLength - answerBigintString.length) + answerBigintString;
+        this.answer = signS + paddedAnswer;
+        console.log("kkk", paddedAnswer);
+      } else if (answerBigintString.length === this.decimalLength) {
+        // 小数点以下の桁数が一致
+        const exactAnswer = "0." + answerBigintString;
+        this.answer = signS + exactAnswer;
+        console.log("ddd", answerBigintString);
+      } else {
+        // 整数部と小数部に分割
+        const integerPart = answerBigintString.slice(0, -this.decimalLength);
+        const decimalPart = answerBigintString.slice(-this.decimalLength);
+        const formattedDecimal = String("0." + decimalPart).slice(2); // 先頭の "0." を削除
+        this.answer = signS + integerPart + "." + formattedDecimal;
+        console.log("lll", integerPart, "0." + decimalPart);
+      }
+      /*
       // 文字列で答えを生成
       if( answerBigintString.length < this.decimalLength){
         this.answer = signS + String ( ( "0." + "0".repeat(this.decimalLength-answerBigintString.length) + answerBigintString ) );
@@ -632,6 +676,7 @@ export class AppComponent implements OnInit {
         this.answer = signS + answerBigintString.slice(0,(-1*this.decimalLength)) + "." + String(  ("0." + answerBigintString.slice(-1*this.decimalLength,18) ) ).slice(2) ;
         console.log("lll",answerBigintString.slice(0,(-1*this.decimalLength)), "0." + answerBigintString.slice(-1*this.decimalLength,this.decimalMaxLength+4));   
       }
+      */
 
       // 引き継がないように消去
       this.decimalLength = 0;
@@ -714,39 +759,41 @@ export class AppComponent implements OnInit {
           this.secondOperand = secondOpresult;
         }    
         console.log(this.secondOperand,"this.secondOperand");
-          const result = 1/Number(this.currentNumber);
+          const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
           this.screenText = "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = null;
       } else // x + , x + y + のとき
       if(this.operatorKeyOn){
-        const result = 1/Number(this.currentNumber);
+        const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
           this.screenText += "1 /(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
       } else // x + y^2 のとき
       if(!this.operator == false && this.subOperatorKeyOn == true && this.screenText.indexOf(" " + this.operator+ " ") !== -1){
-        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " +this.operator + " " + "1/(" +this.currentNumber + ")" ;
-        this.currentNumber = String(1/Number(this.currentNumber));
+        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " +this.operator + " " + "1/(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator+ " ")+3 )+ ")" ;
+        const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
+        this.currentNumber = String(result);
       } else  // 1/x 1/x 1/x 1/x 
       if(this.screenText?.indexOf(" " + this.operator+ " ") == -1 && this.subOperatorKeyOn == true){
         this.screenText = "1 /(" + this.screenText + ")" ;
         if(!this.rounding == false){
           console.log("rounding now");
-          const result = 1/Number(this.rounding);
+          const result = this.doCalculation(this.firstOperand,'1/',this.rounding);
           this.currentNumber = String(result);
           this.firstOperand = String(result);
           this.rounding = null;
         } else {
-          const result = 1/Number(this.currentNumber);
+          const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
           this.currentNumber = String(result);
           this.firstOperand = String(result);
         }
       } else  //   +-×÷　の後
-      if(this.screenText.slice(-1) == this.operator){
+      if(this.screenText?.slice(-1) == this.operator){
         this.screenText = this.screenText + " " + "1/(" +this.currentNumber + ")" ;
-        this.currentNumber = String(1/Number(this.currentNumber));
+        const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
+          this.currentNumber = String(result);
       } else  {  // 数値のみ 
-        const result = 1/Number(this.currentNumber);
+        const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
         this.screenText = "1 /(" +this.currentNumber + ")" ;
         this.currentNumber = String(result);
         this.firstOperand = String(result);
@@ -777,8 +824,8 @@ export class AppComponent implements OnInit {
         this.screenText += " (" + this.currentNumber + ")" + "²" ;
         this.currentNumber = result;
       } else // x + y^2 のとき
-      if(!this.operator == false && this.subOperatorKeyOn == true && this.screenText.indexOf(" " + this.operator+ " ") !== -1){
-          this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " +this.operator + " (" + this.currentNumber + ")" + "²";
+      if(!this.operator == false && this.subOperatorKeyOn == true && this.screenText?.indexOf(" " + this.operator+ " ") !== -1){
+          this.screenText = this.screenText?.slice(0,this.screenText?.indexOf(" " + this.operator+ " ")) +" " +this.operator + " (" + this.screenText?.slice(this.screenText.indexOf(" " + this.operator+ " ")+3) + ")" + "²";
           const result = this.doCalculation(this.firstOperand,'²',this.currentNumber);
           this.currentNumber = result;
       } else // x^2 ^2 ^2
@@ -796,7 +843,7 @@ export class AppComponent implements OnInit {
             this.firstOperand = String(result);
          }
       } else //   +-×÷　の後
-      if(this.screenText.slice(-1) == this.operator){
+      if(this.screenText?.slice(-1) == this.operator){
           this.screenText = this.screenText + " " + "(" + this.currentNumber + ")" + "²";
           const result = this.doCalculation(this.firstOperand,'²',this.currentNumber);
           this.currentNumber = result;
@@ -845,7 +892,7 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(result);
       } else  // x + y^2 のとき
       if(!this.operator == false && this.subOperatorKeyOn == true && this.screenText.indexOf(" " + this.operator+ " ") !== -1){
-        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " + this.operator + " " + "√(" + this.currentNumber + ")";
+        this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " + this.operator + " " + "√(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator+ " ")+3 ) + ")";
         this.currentNumber = String(Math.sqrt(Number(this.currentNumber)));
       } else  // x^2 の時
       if(this.screenText?.indexOf(" " + this.operator+ " ") == -1 && this.subOperatorKeyOn == true){
@@ -862,7 +909,7 @@ export class AppComponent implements OnInit {
         this.firstOperand = String(result);
         }
       } else  //   +-×÷　の後
-      if(this.screenText.slice(-1) == this.operator){     
+      if(this.screenText?.slice(-1) == this.operator){     
           this.screenText += " " + "√(" +this.currentNumber + ")";
           this.currentNumber = String(Math.sqrt(Number(this.currentNumber)));
       
@@ -1397,6 +1444,12 @@ export class AppComponent implements OnInit {
     let secondOperandText = text.slice(text.indexOf(" " + op + " ")+3,text.indexOf("=")-1) 
     let countA = null;
     let countB = null;
+    let signS = null;
+
+    if(Math.sign(Number(secondOperandText)) == -1){
+      signS = -1;
+    }
+
     if(secondOperandText.includes("negate")){ // negate を分解
       countA = secondOperandText.match(/negate/g).length;
       countB = secondOperandText.match(/\)/g).length
@@ -1412,7 +1465,7 @@ export class AppComponent implements OnInit {
       }
       console.log("count",countA,countB,"first",firstIndex,"second",secondIndex,"text",secondOperandText);
     
-      if(countA % 2 == 1){
+      if(signS == -1){
         secondOperandText = "-" + secondOperandText
       } 
     }
@@ -1450,7 +1503,7 @@ export class AppComponent implements OnInit {
           }
         }
         
-        if(countA % 2 == 1){
+        if(signS == -1){
           resultO = "-" + resultO
         } 
         return resultO;
@@ -1487,7 +1540,7 @@ export class AppComponent implements OnInit {
         }
       }
 
-      if(countA % 2 == 1){
+      if(signS == -1){
         resultS = "-" + resultS
       } 
       
@@ -1524,7 +1577,7 @@ export class AppComponent implements OnInit {
           }
         }
       }
-      if(countA % 2 == 1){
+      if(signS == -1){
         resultR = "-" + resultR
       } 
       return resultR;
