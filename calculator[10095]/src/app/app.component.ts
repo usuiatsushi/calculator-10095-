@@ -778,10 +778,16 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(result);
           this.firstOperand = null;
       } else // x + , x + y + のとき
-      if(this.operatorKeyOn){
+      if(this.operatorKeyOn == true && this.screenText?.slice(-1) == this.operator){
         const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
           this.screenText += " 1/(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
+          this.secondOperand = null;
+      } else // x + -y のとき
+        if(this.operatorKeyOn == true && this.screenText.includes("negate")){
+          const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
+          this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " +this.operator + " " + "1/(" + this.currentNumber + ")" ;
+          this.currentNumber = result;
           this.secondOperand = null;
       } else // x + y^2 のとき
       if(!this.operator == false && this.subOperatorKeyOn == true && this.screenText.indexOf(" " + this.operator+ " ") !== -1){
@@ -841,9 +847,15 @@ export class AppComponent implements OnInit {
         this.currentNumber = result;
         this.firstOperand = null;
       } else // x + , x + y + のとき
-      if(this.operatorKeyOn){
+      if(this.operatorKeyOn == true && this.screenText?.slice(-1) == this.operator){
         const result = this.doCalculation(this.firstOperand,'²',this.currentNumber)
         this.screenText += " (" + this.currentNumber + ")" + "²" ;
+        this.currentNumber = result;
+        this.secondOperand = null;
+      } else // x + -y のとき
+      if(this.operatorKeyOn == true && this.screenText.includes("negate")){
+        const result = this.doCalculation(this.firstOperand,'²',this.currentNumber)
+        this.screenText = this.screenText?.slice(0,this.screenText?.indexOf(" " + this.operator+ " ")) + " " + this.operator + " " + "(" + this.currentNumber + ")" + "²";
         this.currentNumber = result;
         this.secondOperand = null;
       } else // x + y^2 のとき
@@ -917,9 +929,15 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(result);
           this.firstOperand = null;
       } else // x + , x + y + のとき
-      if(this.operatorKeyOn){
+      if(this.operatorKeyOn == true && this.screenText?.slice(-1) == this.operator){
           const result = Math.sqrt(Number(this.currentNumber))
           this.screenText += " √(" +this.currentNumber + ")" ; 
+          this.currentNumber = String(result);
+          this.secondOperand = null;
+      } else // x + -y のとき
+        if(this.operatorKeyOn == true && this.screenText.includes("negate")){
+          const result = Math.sqrt(Number(this.currentNumber));
+          this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator+ " ")) +" " + this.operator + " " + "√(" + this.currentNumber + ")";
           this.currentNumber = String(result);
           this.secondOperand = null;
       } else  // x + y^2 のとき
