@@ -1,9 +1,5 @@
-import { CurrencyPipe } from '@angular/common';
-import { Component,OnInit, signal } from '@angular/core';
-import { fakeAsync } from '@angular/core/testing';
-import { f, t } from '@angular/core/weak_ref.d-Bp6cSy-X';
+import { Component,OnInit} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { first } from 'rxjs';
 
 @Component({
   selector: 'app-root',
