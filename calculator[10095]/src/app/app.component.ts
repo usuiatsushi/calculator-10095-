@@ -394,6 +394,7 @@ export class AppComponent implements OnInit {
       } else
       if(this.screenText?.slice(-1) == this.operator && this.operatorKeyOn){ // x + の次に押したとき
         this.screenText = this.screenText + " negate(" + A + ")";
+        this.secondOperand = null;
       } else
       if(this.subOperatorKeyOn == true && !this.operator == false && this.screenText.indexOf(" " + this.operator+ " ") !== -1){  // x + √(y) の時
         this.screenText = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator + " " ) + 3) + "negate(" + this.screenText.slice(this.screenText.indexOf(" " + this.operator + " " ) + 3) + ")";
@@ -773,13 +774,13 @@ export class AppComponent implements OnInit {
         }    
         console.log(this.secondOperand,"this.secondOperand");
           const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
-          this.screenText = "1 /(" +this.currentNumber + ")" ;
+          this.screenText = "1/(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.firstOperand = null;
       } else // x + , x + y + のとき
       if(this.operatorKeyOn){
         const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
-          this.screenText += "1 /(" +this.currentNumber + ")" ;
+          this.screenText += " 1/(" +this.currentNumber + ")" ;
           this.currentNumber = String(result);
           this.secondOperand = null;
       } else // x + y^2 のとき
@@ -796,7 +797,7 @@ export class AppComponent implements OnInit {
         }
       } else  // 1/x 1/x 1/x 1/x 
       if(this.screenText?.indexOf(" " + this.operator+ " ") == -1 && this.subOperatorKeyOn == true){
-        this.screenText = "1 /(" + this.currentNumber + ")" ;
+        this.screenText = "1/(" + this.currentNumber + ")" ;
         if(!this.rounding == false){
           console.log("rounding now");
           const result = this.doCalculation(this.firstOperand,'1/',this.rounding);
@@ -815,7 +816,7 @@ export class AppComponent implements OnInit {
           this.currentNumber = String(result);
       } else  {  // 数値のみ 
         const result = this.doCalculation(this.firstOperand,'1/',this.currentNumber);
-        this.screenText = "1 /(" +this.currentNumber + ")" ;
+        this.screenText = "1/(" +this.currentNumber + ")" ;
         this.currentNumber = String(result);
         this.firstOperand = String(result);
       }
@@ -836,7 +837,7 @@ export class AppComponent implements OnInit {
         }    
         console.log(this.secondOperand,"this.secondOperand");
         const result = this.doCalculation(this.firstOperand,'²',this.currentNumber)
-        this.screenText = " (" + this.currentNumber + ")" + "²" ;
+        this.screenText = "(" + this.currentNumber + ")" + "²" ;
         this.currentNumber = result;
         this.firstOperand = null;
       } else // x + , x + y + のとき
@@ -918,7 +919,7 @@ export class AppComponent implements OnInit {
       } else // x + , x + y + のとき
       if(this.operatorKeyOn){
           const result = Math.sqrt(Number(this.currentNumber))
-          this.screenText += "√(" +this.currentNumber + ")" ; 
+          this.screenText += " √(" +this.currentNumber + ")" ; 
           this.currentNumber = String(result);
           this.secondOperand = null;
       } else  // x + y^2 のとき
