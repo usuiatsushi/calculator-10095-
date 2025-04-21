@@ -296,11 +296,10 @@ export class AppComponent implements OnInit {
       this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
     } else  // x + negate(x) のとき
     if(!this.operator == false && this.screenText.includes("negate") && this.screenText.indexOf(" " + this.operator+ " ") !== -1){
-           
       this.currentNumber = v;
       this.screenText = this.screenText.substring(0,this.screenText.indexOf(" " + this.operator+ " ")+2);
     } else
-    if(this.waitForSecondNumber == true && this.subOperatorKeyOn == true && !this.operator == true){  //  x^2 の時　x で上書き
+    if((this.subOperatorKeyOn == true && !this.operator == true) || (this.subOperatorKeyOn == true && !this.operator == false && this.screenText?.includes(this.operator) == false)){  //  x^2 の時　x で上書き
       this.currentNumber = v;
       this.firstOperand = null;
       this.waitForSecondNumber = false;
@@ -1441,7 +1440,7 @@ export class AppComponent implements OnInit {
     }
 
     this.currentNumber = '0';  // 数値を0に
-    console.log(this.operator,"op",this.firstOperand,"this.firstOperand",this.secondOperand,"this.secondOperand");
+    
     
     if(!this.screenText == true || this.screenText == "0"){ // サブスクリーンが0の時
       this.screenText = "";
@@ -1455,14 +1454,18 @@ export class AppComponent implements OnInit {
           console.log(this.secondOperand,"this.secondOperand");
       this.screenText = "";
       this.waitForSecondNumber = false;
-    } else // 計算途中
+    } else // 計算途中 x + , x + y のとき
     if(!this.operator == false && this.screenText.indexOf(" " + this.operator) !== -1){ 
       let firstOperandString = this.screenText.slice(0,this.screenText.indexOf(" " + this.operator));
       this.screenText = firstOperandString + " " + this.operator;
     } else // x^2 の直後
-    if(this.screenText.includes("(")){
-      this.currentNumber = "0";
-    } else {      
+    if((this.subOperatorKeyOn == true && !this.operator == true) || (this.subOperatorKeyOn == true && !this.operator == false && this.screenText?.includes(this.operator) == false)){ 
+      this.firstOperand = null;
+    } else // = Z の後
+    if(this.screenText?.includes("=") == true){ 
+      this.screenText = ""
+      this.firstOperand = null;
+    } else {
       this.screenText = "";
     }
     
@@ -1470,6 +1473,7 @@ export class AppComponent implements OnInit {
       this.screenText = "";
     }
 
+    console.log(this.operator,"op",this.firstOperand,"this.firstOperand",this.secondOperand,"this.secondOperand");
 
      // フラグオフ
      this.memoryNumberKeyOn = false;
