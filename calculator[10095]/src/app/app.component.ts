@@ -905,6 +905,7 @@ export class AppComponent implements OnInit {
    
     if(op === '√'){       // ルート
       if(Math.sign(Number(this.currentNumber)) == -1){ // 負の数を√　（虚数）
+          /*
           if(this.screenText == null){
             this.screenText = '√(' + this.currentNumber + ')';
           } else 
@@ -913,6 +914,8 @@ export class AppComponent implements OnInit {
           } else {
             this.screenText += ' √(' + this.currentNumber + ')';
           }
+            */
+          this.screenText = ' √(' + this.currentNumber + ')';
             this.currentNumber = '無効な入力です'; // font-size 変えたい
             this.isFormDisabled = true;
             this.isMemoryDisabled = true;   
