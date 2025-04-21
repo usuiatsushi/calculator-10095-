@@ -1,5 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component,OnInit, signal } from '@angular/core';
+import { fakeAsync } from '@angular/core/testing';
 import { f, t } from '@angular/core/weak_ref.d-Bp6cSy-X';
 import { RouterOutlet } from '@angular/router';
 import { first } from 'rxjs';
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
   currentNumber: string = '0';    // スクリーン
     currentNumberAbs: string = "0";  //  スクリーンの絶対値
     rounding : string = null; // 丸め処理用
+    roundingA : string = null; // 丸め処理用
 
   decimalLength: number = 0;
     decimalLengthFirst: number = 0;
@@ -1245,7 +1247,9 @@ export class AppComponent implements OnInit {
         if(Math.sign(Number(this.currentNumber)) == -1){   
           this.rounding =  "-" +  this.rounding;  
         } else // 正の数
-        { this.rounding = this.rounding;}   
+        { this.rounding = this.rounding;} 
+
+        this.roundingA = this.rounding;
     
         
 
@@ -1578,15 +1582,16 @@ export class AppComponent implements OnInit {
     }
     console.log(secondOperandText,"secondOperandText");
 
-      // セカンドオペランドが　1/x 
-    if(secondOperandText.includes('1/')){
-      let resultO = null;      
-      if(!this.rounding == true){
+    if(secondOperandText.includes('1/')){       // セカンドオペランドが　1/x 
+      let resultO = null;
+      console.log(this.roundingA,"roundingA");
+      
+      if(this.roundingA == null){
         resultO = this.doCalculation("0",'1/',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
       } else {
-        resultO = this.doCalculation("0",'1/',this.rounding);
+        resultO = this.roundingA;
       }
-      
+
       // 小数点あり
       if(resultO.includes(".")){
         // 小数点抜き出し
@@ -1627,16 +1632,9 @@ export class AppComponent implements OnInit {
         console.log(resultO,"result",signS,"signS");
         resultO = resultO.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
         return resultO;
-    } else  // セカンドオペランドが　x²
-    if(secondOperandText.includes('²')){
-
-       let resultS = null;
-      if(!this.rounding == true){
-        resultS = this.doCalculation("0",'²',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
-      } else {
-        resultS = this.doCalculation("0",'²',this.rounding);
-      }
-
+    } else
+    if(secondOperandText.includes('²')){      // セカンドオペランドが　x²
+       let resultS = this.doCalculation("0",'²',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
       // 小数点あり
       if(resultS.includes(".")){
       // 小数点抜き出し
@@ -1677,14 +1675,7 @@ export class AppComponent implements OnInit {
       return resultS;
     } else 
     if(secondOperandText.includes("√")){  // セカンドオペランドが　√x
-      let resultR = null;
-      if(!this.rounding == true){
-        resultR = String( Math.sqrt(Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")))) );
-      } else {
-        resultR = String( Math.sqrt(Number(this.rounding)) );
-      }
-      console.log(resultR,"resultR",signS,"signS");
-      
+      let resultR = String( Math.sqrt(Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")))) );
       // 小数点あり
       if(resultR.includes(".")){
       // 小数点抜き出し
