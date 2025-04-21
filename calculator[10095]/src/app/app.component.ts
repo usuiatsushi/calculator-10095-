@@ -1578,8 +1578,15 @@ export class AppComponent implements OnInit {
     }
     console.log(secondOperandText,"secondOperandText");
 
-    if(secondOperandText.includes('1/')){       // セカンドオペランドが　1/x 
-      let resultO = this.doCalculation("0",'1/',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
+      // セカンドオペランドが　1/x 
+    if(secondOperandText.includes('1/')){
+      let resultO = null;      
+      if(!this.rounding == true){
+        resultO = this.doCalculation("0",'1/',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
+      } else {
+        resultO = this.doCalculation("0",'1/',this.rounding);
+      }
+      
       // 小数点あり
       if(resultO.includes(".")){
         // 小数点抜き出し
@@ -1620,9 +1627,16 @@ export class AppComponent implements OnInit {
         console.log(resultO,"result",signS,"signS");
         resultO = resultO.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
         return resultO;
-    } else
-    if(secondOperandText.includes('²')){      // セカンドオペランドが　x²
-       let resultS = this.doCalculation("0",'²',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
+    } else  // セカンドオペランドが　x²
+    if(secondOperandText.includes('²')){
+
+       let resultS = null;
+      if(!this.rounding == true){
+        resultS = this.doCalculation("0",'²',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
+      } else {
+        resultS = this.doCalculation("0",'²',this.rounding);
+      }
+
       // 小数点あり
       if(resultS.includes(".")){
       // 小数点抜き出し
@@ -1663,7 +1677,14 @@ export class AppComponent implements OnInit {
       return resultS;
     } else 
     if(secondOperandText.includes("√")){  // セカンドオペランドが　√x
-      let resultR = String( Math.sqrt(Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")))) );
+      let resultR = null;
+      if(!this.rounding == true){
+        resultR = String( Math.sqrt(Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")))) );
+      } else {
+        resultR = String( Math.sqrt(Number(this.rounding)) );
+      }
+      console.log(resultR,"resultR",signS,"signS");
+      
       // 小数点あり
       if(resultR.includes(".")){
       // 小数点抜き出し
