@@ -408,6 +408,15 @@ export class AppComponent implements OnInit {
         this.screenText = "negate(" + this.screenText + ")";
       }
 
+      // 丸め処理があるとき
+      if(!this.rounding == false){  
+        if(this.rounding.includes("-") == true){
+          this.rounding = this.rounding.slice(1);
+        } else {  
+        this.rounding = "-" + this.rounding
+        }
+      }
+
       //　フラグオフ
     this.memoryNumberKeyOn = false;
   }
@@ -1231,7 +1240,13 @@ export class AppComponent implements OnInit {
         
         //丸め処理用  / 小数点　decimalMaxLength + 5 位まで
         this.rounding = z + "." + a.slice(0, this.decimalMaxLength + 5);
-        console.log(this.rounding,"roundingg");
+        console.log(this.rounding,"rounding");
+        // 負の数
+        if(Math.sign(Number(this.currentNumber)) == -1){   
+          this.rounding =  "-" +  this.rounding;  
+        } else // 正の数
+        { this.rounding = this.rounding;}   
+    
         
 
         const b = a.slice(this.decimalMaxLength - 1,this.decimalMaxLength + 1);
@@ -1564,7 +1579,7 @@ export class AppComponent implements OnInit {
     console.log(secondOperandText,"secondOperandText");
 
     if(secondOperandText.includes('1/')){       // セカンドオペランドが　1/x 
-      let resultO = String( 1 / Number(secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")"))) ) ;
+      let resultO = this.doCalculation("0",'1/',secondOperandText.slice(secondOperandText.indexOf("(")+1,secondOperandText.indexOf(")")));
       // 小数点あり
       if(resultO.includes(".")){
         // 小数点抜き出し
@@ -1603,6 +1618,7 @@ export class AppComponent implements OnInit {
           }
         }
         console.log(resultO,"result",signS,"signS");
+        resultO = resultO.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
         return resultO;
     } else
     if(secondOperandText.includes('²')){      // セカンドオペランドが　x²
@@ -1642,7 +1658,8 @@ export class AppComponent implements OnInit {
       if(signS == -1){
         resultS = "-" + resultS
       } 
-      
+
+      resultS = resultS.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
       return resultS;
     } else 
     if(secondOperandText.includes("√")){  // セカンドオペランドが　√x
@@ -1679,8 +1696,10 @@ export class AppComponent implements OnInit {
       if(signS == -1){
         resultR = "-" + resultR
       } 
+      resultR = resultR.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
       return resultR;
     } else {// セカンドオペランドが　数値
+      secondOperandText = secondOperandText.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
       return secondOperandText;
     }
   }
