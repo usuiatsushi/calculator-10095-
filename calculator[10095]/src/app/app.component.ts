@@ -757,7 +757,7 @@ export class AppComponent implements OnInit {
       if(!this.memoryNumber == false){this.isMemoryDisabled = false; }
 
     } else // 0で割ることはできません
-    if(this.operator == "÷" && this.currentNumber == "0"){
+    if(this.operator == "÷" && this.screenText.includes("÷") &&  this.currentNumber == "0"){
           this.screenText = "";
           this.currentNumber = '0で割ることはできません'; // font-size 変えた
           this.isFormDisabled = true;
