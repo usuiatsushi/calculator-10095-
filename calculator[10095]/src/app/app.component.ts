@@ -1445,7 +1445,7 @@ export class AppComponent implements OnInit {
     if(!this.screenText == true || this.screenText == "0"){ // サブスクリーンが0の時
       this.screenText = "";
     } else
-    if(this.equalKeyOn == true && !this.operator == false){  // x + y = z の時 次の計算に移行 + y を保存する
+    if(this.equalKeyOn == true && !this.operator == false && this.screenText.includes(this.operator) == true){  // x + y = z の時 次の計算に移行 + y を保存する
       const secondOpresult = this.setSecondOperand(this.screenText,this.operator);
           if((this.secondOperand == null && !secondOpresult == false && !Number(secondOpresult) == false) || (!Number(secondOpresult) == false && !secondOpresult == false && !this.screenText == false && secondOpresult !== this.secondOperand)){
             this.secondOperandString = secondOpresult;
