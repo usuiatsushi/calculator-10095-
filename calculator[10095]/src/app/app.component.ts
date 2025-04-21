@@ -762,7 +762,14 @@ export class AppComponent implements OnInit {
     if(op === '1/'){  // x分の１ボタン
       if(this.currentNumber == "0"){
           this.currentNumber = '0で割ることはできません'; // font-size 変えたい
-            if(this.screenText == null || !this.operator == true){this.screenText = '1/(0)';} else {this.screenText += '1/(0)';}
+          this.screenText = '1/(0)';
+            /*
+            if(this.screenText == null || !this.operator == true){
+              this.screenText = '1/(0)';
+            } else {
+              this.screenText += '1/(0)';
+            }
+            */
           this.isFormDisabled = true;
           this.isMemoryDisabled = true; 
       } else  // x + y = z の時
