@@ -752,6 +752,7 @@ export class AppComponent implements OnInit {
 
     } else // 0で割ることはできません
     if(this.operator == "÷" && op == '=' && this.currentNumber == "0"){
+          this.screenText = "";
           this.currentNumber = '0で割ることはできません'; // font-size 変えた
           this.isFormDisabled = true;
           this.isMemoryDisabled = true;
