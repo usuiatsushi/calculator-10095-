@@ -1454,9 +1454,6 @@ export class AppComponent implements OnInit {
       if(this.memoryNumberKeyOn){ 
       } else  // スクリーンが0のとき
       if(this.currentNumber == "0" && this.screenText == ""){ 
-      } else  // サブスクリーンが null or "" の時
-      if(!this.screenText == true){   
-        this.currentNumber = this.currentNumber.slice(0, -1);
       } else  // x + x + x + 　保持する
       if(!this.operator == false && this.screenText?.slice(-1) == this.operator && this.operatorKeyOn == true){ 
       } else  //  x + y の yのみ消去
@@ -1466,13 +1463,22 @@ export class AppComponent implements OnInit {
       if(!this.operator == true && this.screenText?.includes("=") == true){
       } else  // x + y = z  スクリーンのみ消去
       if(this.screenText?.includes('=') == true){ 
-          this.screenText = ""
-          this.firstOperand = null;
+        this.screenText = ""
+        this.firstOperand = null;
+      } else  // x + y = z  の後保持する
+      if(this.equalKeyOn == true){
+        this.screenText = ""
+        this.firstOperand = null;
       } else  //  8 + √ 9   保持する
       if(this.screenText?.includes(this.operator) == true){ 
       } else  // e+nのとき スクリーンのみ消去
       if(this.currentNumber?.includes("e") == true){ 
         this.screenText = "";
+      } else  // x^2 は保持
+      if(this.subOperatorKeyOn == true){
+      } else  // サブスクリーンが null or "" の時
+      if(!this.screenText == true){   
+        this.currentNumber = this.currentNumber.slice(0, -1);
       } else {     // 基本は一文字消去
         this.currentNumber = this.currentNumber.slice(0, -1);
         this.screenText = this.screenText?.slice(0, -1); 
