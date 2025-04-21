@@ -1094,6 +1094,12 @@ export class AppComponent implements OnInit {
             this.firstOperand = this.currentNumber;
               this.screenText = this.screenText + " " + op;
               this.waitForSecondNumber = true;
+          } else // memory + , - の後バグ修正
+          if(!this.screenText == true && op == "="){
+            this.screenText = this.currentNumber + " =";
+            this.firstOperand = null;
+            this.secondOperand = null;
+            this.operator = null;
           } else // =　で計算
           if(!this.operator == false && op == "="){ 
             console.log(this.firstOperand,"this.firstOperand",this.secondOperand,"this.secondOperand");
